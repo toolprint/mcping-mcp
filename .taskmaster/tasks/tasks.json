@@ -16,7 +16,7 @@
             "title": "Set up project and install dependencies",
             "description": "Install node-notifier and update package.json",
             "details": "Install node-notifier npm package, update package.json with new name 'macos-notification-mcp' and description. Clean up any unnecessary dependencies.",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 1
           },
@@ -115,7 +115,7 @@
     "metadata": {
       "created": "2025-07-17T22:32:50.685Z",
       "description": "Default tasks context",
-      "updated": "2025-07-17T22:46:44.653Z"
+      "updated": "2025-07-17T23:02:21.223Z"
     }
   }
 }
