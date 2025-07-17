@@ -39,14 +39,14 @@ export interface AppConfig {
 }
 
 export const APP_CONFIG: AppConfig = {
-  appName: 'Dingdong MCP',
+  appName: 'DingDong Notification Server',
   get technicalName() {
     return toTechnicalName(this.appName);
   },
   get version() {
     return packageJson.version;
   },
-  description: 'MCP TypeScript Server with dual transport support',
+  description: 'macOS notification MCP server for desktop alerts',
   brandName: 'Toolprint',
 } as const;
 
