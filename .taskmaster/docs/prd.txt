@@ -1,0 +1,260 @@
+# MCP TypeScript Server Template - Product Requirements Document
+
+## Overview
+
+A general-purpose Model Context Protocol (MCP) server template built with TypeScript, featuring dual transport support (stdio/HTTP), Express integration, and comprehensive tooling. This template serves as a foundation for developers to quickly bootstrap MCP servers with modern TypeScript practices and industry standards.
+
+The server provides essential MCP functionality including tools, resources, and prompts, with a focus on developer experience through hot-reload, testing, and robust build processes. It demonstrates MCP best practices while remaining simple enough for educational purposes and complex enough for production use.
+
+## Core Features
+
+### Transport Layer
+- **Dual Transport Support**: Runtime-selectable stdio and HTTP transports via CLI flags
+- **Express HTTP Server**: Full Express.js integration with proper middleware support
+- **Streamable HTTP**: Support for bidirectional communication and session management
+- **CLI Interface**: Commander.js-based CLI with transport selection and port configuration
+- **Validation**: Input validation for transport options and port numbers
+
+### MCP Protocol Implementation
+- **Standard Tools**: hello-world, echo, and health tools with proper schemas
+- **Resource Management**: Static prompt resources served from filesystem
+- **Protocol Compliance**: Full MCP specification adherence with proper annotations
+- **Error Handling**: Comprehensive error handling with meaningful error messages
+- **Input/Output Schemas**: Zod-based validation for all tool inputs and outputs
+- **Event-Driven Architecture**: Dynamic tool change notifications with MCP client updates
+
+### Development Infrastructure
+- **TypeScript Configuration**: ES2022 target with ESNext module resolution
+- **ESM Compliance**: Full ES modules support throughout the codebase
+- **Build System**: TypeScript transpilation to dist/ folder with source maps
+- **Testing Framework**: Jest setup with TypeScript support and coverage reporting
+- **Hot Reload**: Development mode with automatic restart on file changes
+- **Code Quality**: Linting, formatting, and type checking
+
+## Technical Architecture
+
+### Core Components
+- **Server Core**: MCP server instance with capability registration
+- **Transport Manager**: Abstraction layer for stdio/HTTP transport selection
+- **Tool Registry**: Centralized tool registration and management system with event emission
+- **Event System**: Type-safe event emitter for tool change notifications
+- **Resource Provider**: File-based resource serving with caching
+- **CLI Controller**: Command-line interface with argument parsing and validation
+
+### Project Structure
+```
+src/
+├── index.ts                 # Main CLI entrypoint
+├── server/
+│   ├── server.ts           # Core MCP server setup with event integration
+│   ├── events/
+│   │   ├── types.ts        # Event type definitions
+│   │   ├── emitter.ts      # Type-safe event emitter
+│   │   └── index.ts        # Event system exports and utilities
+│   ├── transports/
+│   │   ├── stdio.ts        # Stdio transport implementation
+│   │   └── http.ts         # Express HTTP transport implementation
+│   ├── tools/
+│   │   ├── index.ts        # Tool exports and handlers
+│   │   ├── registry.ts     # Dynamic tool registry with events
+│   │   ├── hello-world.ts  # Hello world tool
+│   │   ├── echo.ts         # Echo tool implementation
+│   │   ├── health.ts       # Health check tool
+│   │   └── dynamic-example.ts # Example dynamic tools
+│   ├── resources/
+│   │   ├── index.ts        # Resource provider
+│   │   └── prompts.ts      # Prompt resource implementation
+│   └── types/
+│       └── schemas.ts      # Zod schemas for validation
+├── resources/
+│   └── prompts/
+│       └── welcome.txt     # Static prompt content
+└── utils/
+    ├── logger.ts           # Logging utility (re-export)
+    ├── logging.ts          # Pino-based logging implementation
+    ├── banner.ts           # Toolprint ASCII banner system
+    └── config.ts           # Configuration management
+```
+
+### Event-Driven Tool Management
+
+The server implements a sophisticated event-driven system for dynamic tool management:
+
+#### Event Types
+- **ToolChangeEvent**: Concrete event type with `tool_added`, `tool_updated`, `tool_removed` variants
+- **EventEmitter**: Type-safe event emitter extending Node.js EventEmitter
+- **Event Metadata**: Rich context including timestamps, descriptions, and reasons
+
+#### Event Flow
+1. Tools register/update/unregister via `ToolRegistry`
+2. Registry emits `ToolChangeEvent` via `McpEventEmitter`
+3. MCP Server listens for events and sends notifications to clients
+4. Clients receive `notifications/tools/list_changed` messages
+5. Clients can refresh tool lists in real-time
+
+#### Dynamic Tool Examples
+- **Calculator Tool**: Mathematical operations (add, subtract, multiply, divide)
+- **Random Number Generator**: Configurable range random number generation
+- **Runtime Tool Management**: Add/remove tools programmatically during server operation
+
+### Data Models
+- **ToolInput**: Zod schemas for each tool's input validation
+- **ToolOutput**: Structured response schemas with proper typing
+- **ToolChangeEvent**: Event payload with type, tool name, timestamp, and metadata
+- **ServerConfig**: Runtime configuration including transport and port settings
+- **ResourceMetadata**: Resource description and content type information
+
+### APIs and Integrations
+- **MCP Protocol**: Full compliance with MCP specification
+- **Commander.js**: CLI argument parsing and command structure
+- **Express.js**: HTTP server with middleware support for CORS, JSON parsing
+- **Zod**: Runtime type validation for all inputs and outputs
+
+## Development Roadmap
+
+### Phase 1: Core Infrastructure (MVP)
+- TypeScript project setup with ESM configuration
+- Basic MCP server with stdio transport
+- Core tool implementations (hello-world, echo, health)
+- Build system with TypeScript transpilation
+- Package.json with proper scripts and dependencies
+
+### Phase 2: Transport Layer
+- Commander.js CLI implementation with transport selection
+- Express HTTP transport with proper middleware
+- Transport abstraction layer for easy switching
+- Port configuration and validation
+- Error handling and graceful shutdown
+
+### Phase 3: Resource and Prompt System
+- File-based resource serving system
+- Static prompt implementation with filesystem integration
+- Resource caching and metadata management
+- Proper content-type handling
+- Resource discovery and listing
+
+### Phase 4: Event System and Dynamic Tools
+- Type-safe event emitter implementation
+- Dynamic tool registry with automatic event emission
+- MCP client notification system for tool changes
+- Example dynamic tools (calculator, random number generator)
+- Event system documentation and usage examples
+
+### Phase 5: Development Experience
+- Jest testing framework setup with TypeScript support
+- Development mode with hot-reload functionality
+- Code quality tools (ESLint, Prettier)
+- Comprehensive error handling and logging
+- Pino-based structured logging with file output
+
+### Phase 6: Production Readiness
+- Environment-based configuration management
+- Toolprint banner system with ASCII art
+- Health check endpoints for HTTP transport
+- Performance optimizations and caching
+- Deployment documentation and Docker support
+
+## Logical Dependency Chain
+
+### Foundation Layer (Build First)
+1. **TypeScript Configuration**: Set up tsconfig.json with ES2022/ESNext settings
+2. **Package Structure**: Create package.json with ESM, scripts, and dependencies
+3. **Build System**: Implement TypeScript transpilation to dist/ folder
+4. **Basic Project Structure**: Create src/ directory structure and entry points
+
+### Core MCP Implementation
+5. **MCP Server Core**: Implement basic server with capability registration
+6. **Tool System**: Create tool registry and implement hello-world tool
+7. **Schema Validation**: Set up Zod schemas for input/output validation
+8. **Stdio Transport**: Implement basic stdio transport for initial testing
+
+### Enhanced Functionality
+9. **Additional Tools**: Implement echo and health tools with proper schemas
+10. **CLI Interface**: Add Commander.js with transport selection
+11. **HTTP Transport**: Implement Express-based HTTP transport
+12. **Resource System**: Add file-based resource serving
+
+### Event System Implementation
+13. **Event Types**: Define ToolChangeEvent and event emitter types
+14. **Tool Registry**: Implement dynamic tool registry with event emission
+15. **MCP Notifications**: Integrate event system with MCP client notifications
+16. **Dynamic Tools**: Create example tools demonstrating the event system
+
+### Quality and Testing
+17. **Test Framework**: Set up Vitest with TypeScript support
+18. **Error Handling**: Implement comprehensive error handling
+19. **Logging System**: Add Pino-based structured logging with file output
+20. **Development Tools**: Add hot-reload and development scripts
+
+### Polish and Documentation
+21. **Code Quality**: Add linting, formatting, and type checking
+22. **Banner System**: Implement Toolprint ASCII banner with figlet
+23. **Documentation**: Create comprehensive README and usage examples
+24. **Template Finalization**: Clean up and optimize for template use
+25. **Validation**: End-to-end testing of all features and transports
+
+## Risks and Mitigations
+
+### Technical Challenges
+- **ESM Compatibility**: Risk of dependency conflicts with CommonJS modules
+  - Mitigation: Careful dependency selection and module resolution configuration
+- **Transport Switching**: Complexity in supporting both stdio and HTTP cleanly
+  - Mitigation: Abstract transport layer with common interface
+- **Schema Validation**: Performance impact of runtime validation
+  - Mitigation: Efficient Zod schema design and optional validation in production
+
+### Development Approach
+- **MVP Scope**: Risk of feature creep beyond simple template needs
+  - Mitigation: Focus on core MCP functionality first, add enhancements incrementally
+- **Template Complexity**: Risk of over-engineering for a starter template
+  - Mitigation: Keep examples simple but demonstrate best practices
+- **Testing Coverage**: Ensuring comprehensive testing without over-complexity
+  - Mitigation: Focus on critical paths and MCP protocol compliance
+
+### Resource Constraints
+- **Development Time**: Balancing completeness with time to delivery
+  - Mitigation: Prioritize MVP features and defer nice-to-have items
+- **Maintenance Burden**: Template must remain maintainable and updateable
+  - Mitigation: Clean architecture, good documentation, and minimal dependencies
+
+## Appendix
+
+### Technical Specifications
+- **Node.js**: Version 18+ required for ESM support
+- **TypeScript**: 5.x with strict mode enabled
+- **MCP SDK**: Latest stable version of @modelcontextprotocol/sdk
+- **Express**: 4.x for HTTP transport
+- **Jest**: 29.x for testing framework
+- **Commander**: 11.x for CLI interface
+
+### MCP Tool Specifications
+
+#### Hello World Tool
+- **Name**: `hello-world`
+- **Description**: Returns a simple greeting message
+- **Input Schema**: No parameters required
+- **Output Schema**: `{ message: string }`
+- **Example Output**: `{ "message": "Hello from MCP TypeScript Server!" }`
+
+#### Echo Tool
+- **Name**: `echo`
+- **Description**: Echoes back the provided text
+- **Input Schema**: `{ text: string }`
+- **Output Schema**: `{ echo: string }`
+- **Example**: Input `{ "text": "test" }` → Output `{ "echo": "test" }`
+
+#### Health Tool
+- **Name**: `health`
+- **Description**: Returns server health status
+- **Input Schema**: No parameters required
+- **Output Schema**: `{ status: "green" | "yellow" | "red" }`
+- **Example Output**: `{ "status": "green" }`
+
+### Resource Specifications
+
+#### Welcome Prompt Resource
+- **URI**: `prompt://welcome`
+- **Type**: Static text prompt
+- **Source**: `/resources/prompts/welcome.txt`
+- **Content**: Welcome message and usage instructions for the MCP server
+- **Metadata**: Title, description, and content type information

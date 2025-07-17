@@ -1,0 +1,12 @@
+Welcome to the MCP TypeScript Server!
+
+This server provides a foundation for building Model Context Protocol servers with TypeScript.
+
+Available tools:
+- hello-world: Returns a simple greeting message
+- echo: Echoes back the provided text
+- health: Returns the server health status
+
+The server supports both stdio and HTTP transports, and can be configured via command line arguments.
+
+For more information, visit: https://modelcontextprotocol.io
