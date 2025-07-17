@@ -1,11 +1,11 @@
 {
-  "name": "dingdong-mcp",
+  "name": "dingdong-notification-server",
   "version": "0.0.1",
-  "description": "MCP TypeScript server template with dual transport support",
+  "description": "macOS notification MCP server for desktop alerts",
   "type": "module",
   "main": "./dist/index.js",
   "bin": {
-    "mcp-server": "./dist/index.js"
+    "dingdong-server": "./dist/index.js"
   },
   "scripts": {
     "build": "tsc && cp -r src/resources dist/",
@@ -27,33 +27,36 @@
     "mcp",
     "model-context-protocol",
     "typescript",
-    "server",
-    "template"
+    "notification",
+    "macos",
+    "desktop-notifications"
   ],
   "author": "OneGrep, Inc.",
   "license": "MIT",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
+    "@types/node-notifier": "^8.0.5",
+    "chalk": "^5.3.0",
     "commander": "^11.1.0",
     "express": "^4.18.2",
-    "zod": "^3.22.4",
+    "figlet": "^1.7.0",
+    "node-notifier": "^10.0.1",
     "pino": "^8.16.0",
     "pino-pretty": "^10.2.0",
-    "chalk": "^5.3.0",
-    "figlet": "^1.7.0"
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
-    "@types/node": "^20.8.10",
     "@types/figlet": "^1.5.6",
+    "@types/node": "^20.8.10",
     "@typescript-eslint/eslint-plugin": "^6.10.0",
     "@typescript-eslint/parser": "^6.10.0",
+    "@vitest/coverage-v8": "^1.0.0",
     "eslint": "^8.53.0",
     "nodemon": "^3.0.1",
     "prettier": "^3.0.3",
     "typescript": "^5.2.2",
-    "vitest": "^1.0.0",
-    "@vitest/coverage-v8": "^1.0.0"
+    "vitest": "^1.0.0"
   },
   "engines": {
     "node": ">=18.0.0"
