@@ -25,7 +25,7 @@
             "title": "Create notification tool with Zod schemas",
             "description": "Implement send-notification tool with basic title and message support",
             "details": "Create src/server/tools/notification.ts with Zod schemas for input validation (title: string, message: string, sound?: boolean, timeout?: number). Implement the tool handler using node-notifier.",
-            "status": "pending",
+            "status": "done",
             "dependencies": [
               "1.1"
             ],
@@ -115,7 +115,7 @@
     "metadata": {
       "created": "2025-07-17T22:32:50.685Z",
       "description": "Default tasks context",
-      "updated": "2025-07-17T23:02:21.223Z"
+      "updated": "2025-07-17T23:08:39.889Z"
     }
   }
 }
