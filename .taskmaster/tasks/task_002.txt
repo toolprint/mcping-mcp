@@ -1,0 +1,31 @@
+# Task ID: 2
+# Title: Phase 2: Enhanced Local Features
+# Status: pending
+# Dependencies: 1
+# Priority: medium
+# Description: Add useful features for local development like subtitles, urgency levels, and basic error handling
+# Details:
+Enhance the notification tool with additional optional fields that are useful for local development scenarios. Add subtitle support, urgency levels, and improved error messages. Keep it simple and focused on developer productivity.
+
+# Test Strategy:
+
+
+# Subtasks:
+## 1. Add subtitle and urgency support [pending]
+### Dependencies: None
+### Description: Extend notification schema with subtitle and urgency fields
+### Details:
+Add optional subtitle field (string) for additional context and urgency field (low/normal/critical enum) to the Zod schema. Update the node-notifier implementation to use these fields when provided.
+
+## 2. Improve error handling and messages [pending]
+### Dependencies: 2.1
+### Description: Add better error messages for common issues
+### Details:
+Improve error handling for common scenarios like permission denied, invalid inputs, or notification system issues. Provide helpful error messages that guide developers on how to fix issues (e.g., 'Notification permission denied. Please allow notifications in System Preferences > Notifications').
+
+## 3. Add usage examples and update docs [pending]
+### Dependencies: 2.2
+### Description: Create practical examples for common use cases
+### Details:
+Add examples showing how to use the notification server for common developer scenarios: build completion alerts, test failure notifications, long-running task completion, error alerts. Update README with these examples.
+

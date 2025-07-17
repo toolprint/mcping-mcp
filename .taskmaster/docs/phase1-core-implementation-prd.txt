@@ -1,0 +1,174 @@
+# Phase 1: Core Implementation (MVP) - Product Requirements Document
+
+## Overview
+
+Implement the minimal viable product (MVP) for a macOS notification MCP server. This phase focuses on creating a functional MCP server with a single tool that can send basic desktop notifications on macOS using the existing dingdong-mcp template infrastructure.
+
+## Objectives
+
+1. Transform the existing dingdong-mcp template into a macOS notification server
+2. Implement the send-notification tool with basic functionality
+3. Ensure MCP protocol compliance for tool listing and execution
+4. Provide a working server that can be tested with Claude or other MCP clients
+
+## Technical Requirements
+
+### Tool Implementation
+
+#### send-notification Tool
+- **Name**: send-notification
+- **Description**: Send a desktop notification on macOS
+- **Required Inputs**:
+  - title: string (1-100 characters)
+  - message: string (1-500 characters)
+- **Optional Inputs** (Phase 1 - Basic only):
+  - sound: boolean (default: true)
+  - timeout: number (default: 10 seconds)
+- **Output**: 
+  - success: boolean
+  - notificationId: string (unique identifier)
+  - error: string (if failed)
+  - timestamp: number
+
+### Technical Stack
+- **Notification Library**: node-notifier (npm package)
+- **Validation**: Zod schemas for input/output
+- **TypeScript**: Strict mode with full type safety
+- **Transport**: Stdio (primary for Phase 1)
+
+### Code Modifications
+
+1. **Remove Existing Tools**:
+   - Remove hello-world.ts, echo.ts, health.ts
+   - Clean up tool exports and handlers
+
+2. **Create Notification Tool**:
+   - Create src/server/tools/notification.ts
+   - Implement Zod schemas for validation
+   - Create notification handler using node-notifier
+
+3. **Update Server Configuration**:
+   - Update app name to "macos-notification-mcp"
+   - Update version to 0.1.0
+   - Modify server metadata
+
+4. **Simplify Resources**:
+   - Keep minimal resource setup
+   - Update welcome prompt for notification server
+
+## Implementation Steps
+
+### Step 1: Project Setup
+- Install node-notifier dependency
+- Update package.json with new name and description
+- Clean up unnecessary example files
+
+### Step 2: Schema Definition
+- Create notification input schema with Zod
+- Create notification output schema
+- Add proper TypeScript types
+
+### Step 3: Tool Implementation
+- Implement notification handler function
+- Integrate with node-notifier library
+- Handle success and error cases
+
+### Step 4: Server Integration
+- Register notification tool in tool registry
+- Update tool exports
+- Test tool discovery
+
+### Step 5: Basic Testing
+- Manual test with stdio transport
+- Verify notifications appear on macOS
+- Test error handling
+
+## Success Criteria
+
+1. **Functional Requirements**:
+   - Server starts without errors
+   - list_tools returns send-notification tool
+   - call_tool successfully sends notifications
+   - Notifications appear in macOS Notification Center
+
+2. **Technical Requirements**:
+   - TypeScript compiles without errors
+   - All inputs validated with Zod
+   - Proper error messages returned
+   - Clean console output
+
+3. **Code Quality**:
+   - Follows existing code patterns
+   - Proper TypeScript types
+   - Clear error handling
+   - Minimal dependencies
+
+## Deliverables
+
+1. Modified dingdong-mcp server with notification tool
+2. Working send-notification tool implementation
+3. Updated package.json and configuration
+4. Basic README updates for usage
+5. Successful manual test results
+
+## Dependencies
+
+### New Dependencies
+- node-notifier: ^10.0.0
+
+### Existing Dependencies (Keep)
+- @modelcontextprotocol/sdk
+- zod
+- commander
+- pino (logging)
+- All TypeScript/build dependencies
+
+### Dependencies to Remove
+- None (keep all existing infrastructure)
+
+## Testing Requirements
+
+### Manual Testing
+1. Start server with stdio transport
+2. Connect with MCP client
+3. List available tools
+4. Send test notification
+5. Verify notification appears
+6. Test with invalid inputs
+7. Test error cases
+
+### Validation Tests
+- Title too long (>100 chars)
+- Message too long (>500 chars)
+- Empty title or message
+- Invalid timeout values
+
+## Documentation Updates
+
+1. Update README title and description
+2. Add notification tool usage example
+3. Update installation instructions
+4. Add macOS permission notes
+
+## Risk Mitigation
+
+1. **macOS Permissions**: Document notification permission requirements
+2. **node-notifier Issues**: Have fallback to osascript if needed
+3. **Type Safety**: Ensure all inputs/outputs properly typed
+4. **Error Handling**: Graceful failures with clear messages
+
+## Future Considerations (Not Phase 1)
+
+- Rich notifications with subtitles
+- Action buttons
+- Icons and images
+- Notification grouping
+- Cross-platform support
+
+## Timeline
+
+Estimated: 2-3 hours for experienced developer
+- Project setup: 30 minutes
+- Tool implementation: 60 minutes
+- Integration and testing: 60 minutes
+- Documentation: 30 minutes

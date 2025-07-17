@@ -1,0 +1,205 @@
+# Phase 2: Enhanced Features - Product Requirements Document
+
+## Overview
+
+Extend the basic macOS notification MCP server with advanced notification features and HTTP transport support. This phase focuses on delivering a richer notification experience and enabling browser-based MCP clients to use the notification service.
+
+## Objectives
+
+1. Add HTTP transport alongside existing stdio transport
+2. Implement rich notification features (subtitle, urgency, actions)
+3. Support notification grouping and organization
+4. Enable icon support for visual enhancement
+5. Provide more control over notification behavior
+
+## Technical Requirements
+
+### Enhanced Tool Features
+
+#### Extended send-notification Inputs
+- **New Optional Fields**:
+  - subtitle: string (max 100 chars) - Additional context below title
+  - urgency: enum ['low', 'normal', 'critical'] - Notification importance
+  - actions: string[] (max 3) - Action button labels
+  - closeLabel: string - Custom close button text
+  - icon: string - Path to icon file
+  - bundleId: string - App bundle identifier
+  - groupId: string - Group related notifications
+
+#### Enhanced Output
+- **Additional Fields**:
+  - actionClicked: string (which action was clicked, if any)
+  - dismissMethod: enum ['timeout', 'user', 'action']
+  - displayDuration: number (how long shown)
+
+### Transport Enhancement
+
+#### HTTP Transport Implementation
+- **Endpoint**: POST /mcp (existing structure)
+- **Health Check**: GET /health
+- **Port**: Configurable (default 3000)
+- **CORS**: Enabled for browser clients
+- **Session Management**: Via StreamableHTTP
+
+### Technical Implementation
+
+1. **Notification Enhancements**:
+   - Leverage node-notifier's advanced options
+   - Implement action callback handling
+   - Support custom app identification
+   - Handle notification grouping
+
+2. **Transport Layer**:
+   - Ensure HTTP transport works with notification tool
+   - Test with MCP Inspector
+   - Maintain stdio transport functionality
+
+3. **Schema Updates**:
+   - Extend Zod schemas for new fields
+   - Add validation for urgency levels
+   - Validate action array constraints
+
+## Implementation Steps
+
+### Step 1: Schema Extension
+- Update notification input schema
+- Add new optional fields
+- Implement stricter validations
+- Update TypeScript interfaces
+
+### Step 2: Advanced Notifications
+- Implement subtitle support
+- Add urgency level handling
+- Create action button support
+- Implement notification grouping
+
+### Step 3: Icon Support
+- Validate icon file paths
+- Handle missing icons gracefully
+- Support both absolute and relative paths
+- Add icon format validation
+
+### Step 4: HTTP Transport Testing
+- Verify HTTP endpoint works
+- Test with browser-based clients
+- Ensure proper CORS handling
+- Validate session management
+
+### Step 5: Action Handling
+- Implement action callbacks (if supported)
+- Handle action responses
+- Update output schema
+- Test action interactions
+
+## Success Criteria
+
+1. **Feature Completeness**:
+   - All new fields functional
+   - HTTP transport operational
+   - Actions display correctly
+   - Icons render properly
+
+2. **Backward Compatibility**:
+   - Basic notifications still work
+   - Stdio transport unchanged
+   - Optional fields truly optional
+
+3. **User Experience**:
+   - Notifications visually enhanced
+   - Grouping works as expected
+   - Actions are clickable
+   - Urgency affects presentation
+
+## Deliverables
+
+1. Extended notification tool with rich features
+2. Fully functional HTTP transport
+3. Updated schemas and types
+4. Comprehensive examples
+5. Feature documentation
+
+## Testing Requirements
+
+### Feature Testing
+1. **Subtitle Display**:
+   - Test with various lengths
+   - Special characters
+   - Empty subtitles
+
+2. **Urgency Levels**:
+   - Verify each level displays differently
+   - Test system behavior
+   - Fallback handling
+
+3. **Action Buttons**:
+   - Test 1, 2, and 3 actions
+   - Long action labels
+   - Special characters
+
+4. **Icon Support**:
+   - Valid icon paths
+   - Missing icons
+   - Different formats (PNG, ICNS)
+
+5. **Grouping**:
+   - Same groupId behavior
+   - Multiple groups
+   - Group clearing
+
+### Transport Testing
+1. Start server with HTTP transport
+2. Test with curl/Postman
+3. Browser-based client testing
+4. Concurrent request handling
+5. Error response formats
+
+## Documentation Updates
+
+1. **API Documentation**:
+   - All new fields documented
+   - Examples for each feature
+   - HTTP endpoint documentation
+
+2. **Usage Guide**:
+   - Rich notification examples
+   - HTTP client setup
+   - Action handling explanation
+
+3. **Configuration**:
+   - HTTP port configuration
+   - CORS settings
+   - Transport selection
+
+## Risk Mitigation
+
+1. **Platform Limitations**: Document which features work on which macOS versions
+2. **Action Callbacks**: May not be fully supported - document limitations
+3. **Icon Formats**: Validate supported formats, provide fallbacks
+4. **HTTP Security**: Ensure proper CORS configuration
+
+## Dependencies
+
+### Updated Dependencies
+- Ensure node-notifier version supports all features
+- May need additional typing packages
+
+### No New Dependencies
+- Use existing HTTP infrastructure
+- Leverage current validation setup
+
+## Future Considerations (Phase 3+)
+
+- Notification history tracking
+- Rich media (images in notifications)
+- Sound customization
+- Do Not Disturb handling
+- Notification templates
+
+## Timeline
+
+Estimated: 3-4 hours
+- Schema updates: 30 minutes
+- Feature implementation: 90 minutes
+- HTTP transport verification: 60 minutes
+- Testing all features: 60 minutes
+- Documentation: 30 minutes

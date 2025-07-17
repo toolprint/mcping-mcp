@@ -1,0 +1,121 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Phase 1: Core Implementation (MVP)",
+        "description": "Transform existing dingdong-mcp template into a functional macOS notification server with basic send-notification tool",
+        "details": "Implement the minimal viable product for a macOS notification MCP server. Create a functional MCP server with a single tool that can send basic desktop notifications on macOS using the existing infrastructure. Focus on core functionality with stdio transport.",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "high",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Set up project and install dependencies",
+            "description": "Install node-notifier and update package.json",
+            "details": "Install node-notifier npm package, update package.json with new name 'macos-notification-mcp' and description. Clean up any unnecessary dependencies.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 1
+          },
+          {
+            "id": 2,
+            "title": "Create notification tool with Zod schemas",
+            "description": "Implement send-notification tool with basic title and message support",
+            "details": "Create src/server/tools/notification.ts with Zod schemas for input validation (title: string, message: string, sound?: boolean, timeout?: number). Implement the tool handler using node-notifier.",
+            "status": "pending",
+            "dependencies": [
+              "1.1"
+            ],
+            "parentTaskId": 1
+          },
+          {
+            "id": 3,
+            "title": "Remove example tools and integrate notification tool",
+            "description": "Clean up example tools and register the notification tool",
+            "details": "Remove hello-world.ts, echo.ts, health.ts and their tests. Update src/server/tools/index.ts to export only the notification tool. Ensure the tool is properly registered in the tool registry.",
+            "status": "pending",
+            "dependencies": [
+              "1.2"
+            ],
+            "parentTaskId": 1
+          },
+          {
+            "id": 4,
+            "title": "Test notification functionality",
+            "description": "Manual testing to ensure notifications work on macOS",
+            "details": "Build the project (npm run build), start the server with stdio transport, test with MCP client or manual JSON-RPC requests. Verify that notifications appear in macOS Notification Center with correct title and message.",
+            "status": "pending",
+            "dependencies": [
+              "1.3"
+            ],
+            "parentTaskId": 1
+          },
+          {
+            "id": 5,
+            "title": "Update documentation and examples",
+            "description": "Create simple documentation for local usage",
+            "details": "Update README.md with macOS notification server information, add usage examples showing how to send notifications, include MCP client configuration example for Claude. Keep it simple and focused on local development use.",
+            "status": "pending",
+            "dependencies": [
+              "1.4"
+            ],
+            "parentTaskId": 1
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Phase 2: Enhanced Local Features",
+        "description": "Add useful features for local development like subtitles, urgency levels, and basic error handling",
+        "details": "Enhance the notification tool with additional optional fields that are useful for local development scenarios. Add subtitle support, urgency levels, and improved error messages. Keep it simple and focused on developer productivity.",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [
+          1
+        ],
+        "priority": "medium",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Add subtitle and urgency support",
+            "description": "Extend notification schema with subtitle and urgency fields",
+            "details": "Add optional subtitle field (string) for additional context and urgency field (low/normal/critical enum) to the Zod schema. Update the node-notifier implementation to use these fields when provided.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 2
+          },
+          {
+            "id": 2,
+            "title": "Improve error handling and messages",
+            "description": "Add better error messages for common issues",
+            "details": "Improve error handling for common scenarios like permission denied, invalid inputs, or notification system issues. Provide helpful error messages that guide developers on how to fix issues (e.g., 'Notification permission denied. Please allow notifications in System Preferences > Notifications').",
+            "status": "pending",
+            "dependencies": [
+              "2.1"
+            ],
+            "parentTaskId": 2
+          },
+          {
+            "id": 3,
+            "title": "Add usage examples and update docs",
+            "description": "Create practical examples for common use cases",
+            "details": "Add examples showing how to use the notification server for common developer scenarios: build completion alerts, test failure notifications, long-running task completion, error alerts. Update README with these examples.",
+            "status": "pending",
+            "dependencies": [
+              "2.2"
+            ],
+            "parentTaskId": 2
+          }
+        ]
+      }
+    ],
+    "metadata": {
+      "created": "2025-07-17T22:32:50.685Z",
+      "description": "Default tasks context",
+      "updated": "2025-07-17T22:46:44.653Z"
+    }
+  }
+}
