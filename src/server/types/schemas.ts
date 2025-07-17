@@ -9,6 +9,18 @@ export const EchoInputSchema = z.object({
 
 export const HealthInputSchema = z.object({});
 
+export const NotificationInputSchema = z.object({
+  // Required fields
+  title: z.string().min(1, 'Title cannot be empty').max(100, 'Title must be 100 characters or less'),
+  message: z.string().min(1, 'Message cannot be empty').max(500, 'Message must be 500 characters or less'),
+  
+  // Optional fields
+  subtitle: z.string().max(100, 'Subtitle must be 100 characters or less').optional(),
+  sound: z.boolean().default(true),
+  timeout: z.number().int().min(1).max(60).default(10),
+  urgency: z.enum(['low', 'normal', 'critical']).default('normal'),
+});
+
 // Tool output schemas
 export const HelloWorldOutputSchema = z.object({
   message: z.string(),
@@ -20,6 +32,13 @@ export const EchoOutputSchema = z.object({
 
 export const HealthOutputSchema = z.object({
   status: z.enum(['green', 'yellow', 'red']),
+});
+
+export const NotificationOutputSchema = z.object({
+  success: z.boolean(),
+  notificationId: z.string().optional(),
+  error: z.string().optional(),
+  timestamp: z.number(),
 });
 
 // Server configuration schema
@@ -46,6 +65,9 @@ export type EchoOutput = z.infer<typeof EchoOutputSchema>;
 
 export type HealthInput = z.infer<typeof HealthInputSchema>;
 export type HealthOutput = z.infer<typeof HealthOutputSchema>;
+
+export type NotificationInput = z.infer<typeof NotificationInputSchema>;
+export type NotificationOutput = z.infer<typeof NotificationOutputSchema>;
 
 export type ServerConfig = z.infer<typeof ServerConfigSchema>;
 export type ResourceMetadata = z.infer<typeof ResourceMetadataSchema>;
