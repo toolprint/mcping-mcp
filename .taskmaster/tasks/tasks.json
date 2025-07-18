@@ -16,7 +16,7 @@
             "title": "Set up project and install dependencies",
             "description": "Install node-notifier and update package.json",
             "details": "Install node-notifier npm package, update package.json with new name 'macos-notification-mcp' and description. Clean up any unnecessary dependencies.",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 1
           },
@@ -25,7 +25,7 @@
             "title": "Create notification tool with Zod schemas",
             "description": "Implement send-notification tool with basic title and message support",
             "details": "Create src/server/tools/notification.ts with Zod schemas for input validation (title: string, message: string, sound?: boolean, timeout?: number). Implement the tool handler using node-notifier.",
-            "status": "pending",
+            "status": "in-progress",
             "dependencies": [
               "1.1"
             ],
@@ -83,7 +83,7 @@
             "title": "Add subtitle and urgency support",
             "description": "Extend notification schema with subtitle and urgency fields",
             "details": "Add optional subtitle field (string) for additional context and urgency field (low/normal/critical enum) to the Zod schema. Update the node-notifier implementation to use these fields when provided.",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 2
           },
@@ -115,7 +115,7 @@
     "metadata": {
       "created": "2025-07-17T22:32:50.685Z",
       "description": "Default tasks context",
-      "updated": "2025-07-17T22:46:44.653Z"
+      "updated": "2025-07-17T23:12:02.670Z"
     }
   }
 }

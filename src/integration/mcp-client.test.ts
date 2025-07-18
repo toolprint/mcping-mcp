@@ -48,7 +48,7 @@ describe('MCP Client Integration Tests', () => {
       const tools = await client.listTools();
       
       expect(tools).toBeDefined();
-      expect(tools.tools).toHaveLength(3);
+      expect(tools.tools).toHaveLength(4);
       
       const toolNames = tools.tools.map(tool => tool.name);
       expect(toolNames).toContain('hello-world');
@@ -201,7 +201,7 @@ describe('MCP Client Integration Tests', () => {
     test('should perform a complete client-server interaction workflow', async () => {
       // 1. List tools
       const tools = await client.listTools();
-      expect(tools.tools).toHaveLength(3);
+      expect(tools.tools).toHaveLength(4);
 
       // 2. List resources
       const resources = await client.listResources();
