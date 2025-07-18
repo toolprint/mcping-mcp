@@ -1,11 +1,11 @@
 {
-  "name": "dingdong-notification-server",
+  "name": "@toolprint/mcping-mcp",
   "version": "0.0.1",
-  "description": "macOS notification MCP server for desktop alerts",
+  "description": "MCPing - A Model Context Protocol server that enables desktop notifications on macOS through AI assistants",
   "type": "module",
   "main": "./dist/index.js",
   "bin": {
-    "dingdong-server": "./dist/index.js"
+    "mcping-mcp": "./dist/index.js"
   },
   "scripts": {
     "build": "tsc && cp -r src/resources dist/",
@@ -29,9 +29,19 @@
     "typescript",
     "notification",
     "macos",
-    "desktop-notifications"
+    "desktop-notifications",
+    "mcping",
+    "ai-notifications"
   ],
-  "author": "OneGrep, Inc.",
+  "author": "Toolprint <hello@toolprint.ai>",
+  "homepage": "https://github.com/toolprint/mcping-mcp#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/toolprint/mcping-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/toolprint/mcping-mcp/issues"
+  },
   "license": "MIT",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
