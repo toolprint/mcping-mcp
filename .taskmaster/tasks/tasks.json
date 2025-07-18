@@ -36,7 +36,7 @@
             "title": "Remove example tools and integrate notification tool",
             "description": "Clean up example tools and register the notification tool",
             "details": "Remove hello-world.ts, echo.ts, health.ts and their tests. Update src/server/tools/index.ts to export only the notification tool. Ensure the tool is properly registered in the tool registry.",
-            "status": "pending",
+            "status": "done",
             "dependencies": [
               "1.2"
             ],
@@ -47,7 +47,7 @@
             "title": "Test notification functionality",
             "description": "Manual testing to ensure notifications work on macOS",
             "details": "Build the project (npm run build), start the server with stdio transport, test with MCP client or manual JSON-RPC requests. Verify that notifications appear in macOS Notification Center with correct title and message.",
-            "status": "pending",
+            "status": "done",
             "dependencies": [
               "1.3"
             ],
@@ -58,7 +58,7 @@
             "title": "Update documentation and examples",
             "description": "Create simple documentation for local usage",
             "details": "Update README.md with macOS notification server information, add usage examples showing how to send notifications, include MCP client configuration example for Claude. Keep it simple and focused on local development use.",
-            "status": "pending",
+            "status": "done",
             "dependencies": [
               "1.4"
             ],
@@ -83,7 +83,7 @@
             "title": "Add subtitle and urgency support",
             "description": "Extend notification schema with subtitle and urgency fields",
             "details": "Add optional subtitle field (string) for additional context and urgency field (low/normal/critical enum) to the Zod schema. Update the node-notifier implementation to use these fields when provided.",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 2
           },
@@ -115,7 +115,7 @@
     "metadata": {
       "created": "2025-07-17T22:32:50.685Z",
       "description": "Default tasks context",
-      "updated": "2025-07-17T23:08:39.889Z"
+      "updated": "2025-07-18T15:11:32.917Z"
     }
   }
 }

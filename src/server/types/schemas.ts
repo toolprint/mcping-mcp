@@ -16,9 +16,9 @@ export const NotificationInputSchema = z.object({
   
   // Optional fields
   subtitle: z.string().max(100, 'Subtitle must be 100 characters or less').optional(),
+  urgency: z.enum(['low', 'normal', 'critical']).default('normal'),
   sound: z.boolean().default(true),
   timeout: z.number().int().min(1).max(60).default(10),
-  urgency: z.enum(['low', 'normal', 'critical']).default('normal'),
 });
 
 // Tool output schemas

@@ -1,4 +1,5 @@
 import { Tool } from '@modelcontextprotocol/sdk/types.js';
+import notifier from 'node-notifier';
 import {
   NotificationInput,
   NotificationOutput,
@@ -6,11 +7,10 @@ import {
   NotificationOutputSchema,
 } from '../types/schemas.js';
 import { logger } from '../../utils/logger.js';
-import notifier from 'node-notifier';
 
 export const notificationTool: Tool = {
   name: 'send-notification',
-  description: 'Sends a desktop notification on macOS',
+  description: 'Send a desktop notification on macOS with subtitle and urgency support',
   inputSchema: {
     type: 'object',
     properties: {
@@ -28,26 +28,26 @@ export const notificationTool: Tool = {
       },
       subtitle: {
         type: 'string',
-        description: 'Optional subtitle for the notification',
+        description: 'Optional subtitle text displayed below the title',
         maxLength: 100,
+      },
+      urgency: {
+        type: 'string',
+        enum: ['low', 'normal', 'critical'],
+        description: 'Notification urgency level',
+        default: 'normal',
       },
       sound: {
         type: 'boolean',
-        description: 'Whether to play notification sound',
+        description: 'Whether to play a sound with the notification',
         default: true,
       },
       timeout: {
         type: 'number',
-        description: 'Auto-dismiss timeout in seconds (1-60)',
+        description: 'Notification timeout in seconds (1-60)',
         minimum: 1,
         maximum: 60,
         default: 10,
-      },
-      urgency: {
-        type: 'string',
-        description: 'Notification urgency level',
-        enum: ['low', 'normal', 'critical'],
-        default: 'normal',
       },
     },
     required: ['title', 'message'],
@@ -87,16 +87,26 @@ export async function handleNotification(input: NotificationInput): Promise<Noti
     const notificationId = `notification-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const timestamp = Date.now();
 
+    // Map urgency to macOS notification priority (enhanced mapping)
+    const urgencyMap = {
+      low: 'low',
+      normal: 'normal', 
+      critical: 'critical',
+    };
+    
     // Prepare notification options
-    const notificationOptions = {
+    const notificationOptions: any = {
       title: validatedInput.title,
       message: validatedInput.message,
-      subtitle: validatedInput.subtitle,
       sound: validatedInput.sound,
       timeout: validatedInput.timeout,
-      // Map urgency to macOS notification center urgency
-      urgency: validatedInput.urgency === 'critical' ? 'critical' : 'normal',
+      urgency: urgencyMap[validatedInput.urgency],
     };
+    
+    // Add subtitle if provided
+    if (validatedInput.subtitle) {
+      notificationOptions.subtitle = validatedInput.subtitle;
+    }
 
     // Send notification using node-notifier
     const result = await new Promise<boolean>((resolve, reject) => {
@@ -130,9 +140,22 @@ export async function handleNotification(input: NotificationInput): Promise<Noti
   } catch (error) {
     logger.error('Error executing notification tool:', error);
 
+    // Handle common errors with helpful messages
+    let errorMessage = 'Failed to send notification';
+    
+    if (error instanceof Error) {
+      if (error.message.includes('Permission denied')) {
+        errorMessage = 'Notification permission denied. Please allow notifications in System Preferences > Notifications';
+      } else if (error.message.includes('timeout')) {
+        errorMessage = 'Notification timeout - please check your notification settings';
+      } else {
+        errorMessage = error.message;
+      }
+    }
+
     const output: NotificationOutput = {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error occurred',
+      error: errorMessage,
       timestamp: Date.now(),
     };
 

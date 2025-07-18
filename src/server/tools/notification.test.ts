@@ -9,6 +9,15 @@ vi.mock('node-notifier', () => ({
   },
 }));
 
+// Mock logger
+vi.mock('../../utils/logger.js', () => ({
+  logger: {
+    debug: vi.fn(),
+    error: vi.fn(),
+    info: vi.fn(),
+  },
+}));
+
 import notifier from 'node-notifier';
 
 describe('Notification Tool', () => {
@@ -19,7 +28,7 @@ describe('Notification Tool', () => {
   describe('notificationTool', () => {
     it('should have correct tool definition', () => {
       expect(notificationTool.name).toBe('send-notification');
-      expect(notificationTool.description).toBe('Sends a desktop notification on macOS');
+      expect(notificationTool.description).toBe('Send a desktop notification on macOS with subtitle and urgency support');
       expect(notificationTool.inputSchema).toBeDefined();
       expect(notificationTool.outputSchema).toBeDefined();
     });
@@ -70,7 +79,7 @@ describe('Notification Tool', () => {
       );
     });
 
-    it('should send notification with all optional fields', async () => {
+    it('should send notification with all optional fields including subtitle', async () => {
       mockNotify.mockImplementation((_options, callback) => {
         callback(null, 'notification sent');
       });
@@ -100,8 +109,34 @@ describe('Notification Tool', () => {
       );
     });
 
-    it('should handle notification errors', async () => {
-      const error = new Error('Notification failed');
+    it('should handle low urgency notifications', async () => {
+      mockNotify.mockImplementation((_options, callback) => {
+        callback(null, 'notification sent');
+      });
+
+      const input: NotificationInput = {
+        title: 'Info Update',
+        message: 'Background task completed',
+        urgency: 'low',
+        sound: false,
+      };
+
+      const result = await handleNotification(input);
+
+      expect(result.success).toBe(true);
+      expect(mockNotify).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: 'Info Update',
+          message: 'Background task completed',
+          urgency: 'low',
+          sound: false,
+        }),
+        expect.any(Function)
+      );
+    });
+
+    it('should handle notification errors with helpful messages', async () => {
+      const error = new Error('Permission denied');
       mockNotify.mockImplementation((_options, callback) => {
         callback(error, '');
       });
@@ -114,7 +149,8 @@ describe('Notification Tool', () => {
       const result = await handleNotification(input);
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe('Notification failed');
+      expect(result.error).toContain('Notification permission denied');
+      expect(result.error).toContain('System Preferences');
       expect(result.timestamp).toBeDefined();
       expect(result.notificationId).toBeUndefined();
     });
