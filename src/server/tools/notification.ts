@@ -11,7 +11,7 @@ import { logger } from '../../utils/logger.js';
 
 export const notificationTool: Tool = {
   name: 'send-notification',
-  description: 'Send a desktop notification on macOS with subtitle and urgency support',
+  description: 'Send a desktop notification on macOS with icon, image, and sound customization',
   inputSchema: {
     type: 'object',
     properties: {
@@ -39,8 +39,23 @@ export const notificationTool: Tool = {
         default: 'normal',
       },
       sound: {
-        type: 'boolean',
-        description: 'Whether to play a sound with the notification',
+        oneOf: [
+          {
+            type: 'boolean',
+            description: 'true for default sound, false for no sound',
+          },
+          {
+            type: 'string',
+            enum: ['Basso', 'Blow', 'Bottle', 'Frog', 'Funk', 'Glass', 'Hero', 'Morse', 'Ping', 'Pop', 'Purr', 'Sosumi', 'Submarine', 'Tink'],
+            description: 'Built-in macOS sound name',
+          },
+          {
+            type: 'string',
+            pattern: '^/.*$',
+            description: 'Absolute path to custom sound file',
+          },
+        ],
+        description: 'Sound setting: boolean, built-in sound name, or path to custom sound',
         default: true,
       },
       timeout: {
@@ -49,6 +64,21 @@ export const notificationTool: Tool = {
         minimum: 1,
         maximum: 60,
         default: 10,
+      },
+      icon: {
+        type: 'string',
+        pattern: '^/.*$',
+        description: 'Absolute path to notification icon image',
+      },
+      contentImage: {
+        type: 'string',
+        pattern: '^/.*$',
+        description: 'Absolute path to image to attach to notification',
+      },
+      open: {
+        type: 'string',
+        format: 'uri',
+        description: 'URL to open when notification is clicked',
       },
     },
     required: ['title', 'message'],
@@ -105,9 +135,21 @@ export async function handleNotification(input: NotificationInput): Promise<Noti
       wait: false, // Don't wait for user interaction
     };
     
-    // Add subtitle if provided
+    // Add optional fields if provided
     if (validatedInput.subtitle) {
       notificationOptions.subtitle = validatedInput.subtitle;
+    }
+    
+    if (validatedInput.icon) {
+      notificationOptions.icon = validatedInput.icon;
+    }
+    
+    if (validatedInput.contentImage) {
+      notificationOptions.contentImage = validatedInput.contentImage;
+    }
+    
+    if (validatedInput.open) {
+      notificationOptions.open = validatedInput.open;
     }
 
     // Send notification using node-notifier with timeout protection

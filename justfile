@@ -73,7 +73,7 @@ test-notify title="Test Notification" message="Hello from MCPing!" port="3000":
                 "arguments": { \
                     "title": "{{ title }}", \
                     "message": "{{ message }}", \
-                    "sound": true \
+                    "sound": "Ping" \
                 } \
             } \
         }' | jq -r '.result.content[0].text' | jq .
@@ -278,3 +278,94 @@ quick-test: build
     # Stop server
     kill $SERVER_PID
     echo "✅ Quick test completed!"
+
+# Test new notification features with icon and sound
+[group('test')]
+test-features port="3000":
+    #!/usr/bin/env bash
+    set -e
+    echo "🚀 Starting MCPing server for feature testing..."
+    npm start -- --transport http --port {{ port }} &
+    SERVER_PID=$!
+    
+    # Wait for server to start
+    sleep 2
+    
+    echo "🔔 Testing built-in sound notifications..."
+    just test-notify-sound "Sound Test" "Testing Ping sound" "Ping" {{ port }}
+    sleep 1
+    just test-notify-sound "Sound Test" "Testing Glass sound" "Glass" {{ port }}
+    sleep 1
+    
+    echo "🖼️ Testing with system icon..."
+    just test-notify-icon "Icon Test" "Testing with Finder icon" "/System/Library/CoreServices/Finder.app/Contents/Resources/Finder.icns" {{ port }}
+    sleep 1
+    
+    echo "🌐 Testing with clickable URL..."
+    just test-notify-url "URL Test" "Click to open GitHub" "https://github.com/toolprint/mcping-mcp" {{ port }}
+    
+    # Stop server
+    kill $SERVER_PID
+    echo "✅ Feature test completed!"
+
+# Test notification with custom sound
+[group('test')]
+test-notify-sound title message sound port="3000":
+    @echo "🔔 Sending notification with {{ sound }} sound..."
+    @curl -s -X POST http://localhost:{{ port }}/mcp \
+        -H "Content-Type: application/json" \
+        -d '{ \
+            "jsonrpc": "2.0", \
+            "id": 1, \
+            "method": "tools/call", \
+            "params": { \
+                "name": "send-notification", \
+                "arguments": { \
+                    "title": "{{ title }}", \
+                    "message": "{{ message }}", \
+                    "sound": "{{ sound }}" \
+                } \
+            } \
+        }' | jq -r '.result.content[0].text' | jq .
+
+# Test notification with custom icon
+[group('test')]
+test-notify-icon title message icon port="3000":
+    @echo "🖼️ Sending notification with custom icon..."
+    @curl -s -X POST http://localhost:{{ port }}/mcp \
+        -H "Content-Type: application/json" \
+        -d '{ \
+            "jsonrpc": "2.0", \
+            "id": 1, \
+            "method": "tools/call", \
+            "params": { \
+                "name": "send-notification", \
+                "arguments": { \
+                    "title": "{{ title }}", \
+                    "message": "{{ message }}", \
+                    "icon": "{{ icon }}", \
+                    "sound": "Tink" \
+                } \
+            } \
+        }' | jq -r '.result.content[0].text' | jq .
+
+# Test notification with clickable URL
+[group('test')]
+test-notify-url title message url port="3000":
+    @echo "🌐 Sending notification with clickable URL..."
+    @curl -s -X POST http://localhost:{{ port }}/mcp \
+        -H "Content-Type: application/json" \
+        -d '{ \
+            "jsonrpc": "2.0", \
+            "id": 1, \
+            "method": "tools/call", \
+            "params": { \
+                "name": "send-notification", \
+                "arguments": { \
+                    "title": "{{ title }}", \
+                    "message": "{{ message }}", \
+                    "open": "{{ url }}", \
+                    "sound": "Hero" \
+                } \
+            } \
+        }' | jq -r '.result.content[0].text' | jq .

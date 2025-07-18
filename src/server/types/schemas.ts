@@ -17,8 +17,15 @@ export const NotificationInputSchema = z.object({
   // Optional fields
   subtitle: z.string().max(100, 'Subtitle must be 100 characters or less').optional(),
   urgency: z.enum(['low', 'normal', 'critical']).default('normal'),
-  sound: z.boolean().default(true),
+  sound: z.union([
+    z.boolean(),
+    z.enum(['Basso', 'Blow', 'Bottle', 'Frog', 'Funk', 'Glass', 'Hero', 'Morse', 'Ping', 'Pop', 'Purr', 'Sosumi', 'Submarine', 'Tink']),
+    z.string().regex(/^\/.*$/, 'Custom sound must be an absolute path')
+  ]).default(true),
   timeout: z.number().int().min(1).max(60).default(10),
+  icon: z.string().regex(/^\/.*$/, 'Icon must be an absolute path').optional(),
+  contentImage: z.string().regex(/^\/.*$/, 'Content image must be an absolute path').optional(),
+  open: z.string().url('Open must be a valid URL').optional(),
 });
 
 // Tool output schemas

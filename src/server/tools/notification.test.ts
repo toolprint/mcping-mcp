@@ -29,7 +29,7 @@ describe('Notification Tool', () => {
   describe('notificationTool', () => {
     it('should have correct tool definition', () => {
       expect(notificationTool.name).toBe('send-notification');
-      expect(notificationTool.description).toBe('Send a desktop notification on macOS with subtitle and urgency support');
+      expect(notificationTool.description).toBe('Send a desktop notification on macOS with icon, image, and sound customization');
       expect(notificationTool.inputSchema).toBeDefined();
       expect(notificationTool.outputSchema).toBeDefined();
     });
