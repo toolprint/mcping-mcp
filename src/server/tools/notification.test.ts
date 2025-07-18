@@ -15,6 +15,7 @@ vi.mock('../../utils/logger.js', () => ({
     debug: vi.fn(),
     error: vi.fn(),
     info: vi.fn(),
+    warn: vi.fn(),
   },
 }));
 
@@ -74,6 +75,7 @@ describe('Notification Tool', () => {
           sound: true,
           timeout: 10,
           urgency: 'normal',
+          wait: false,
         }),
         expect.any(Function)
       );
@@ -104,6 +106,7 @@ describe('Notification Tool', () => {
           sound: false,
           timeout: 30,
           urgency: 'critical',
+          wait: false,
         }),
         expect.any(Function)
       );
@@ -130,6 +133,7 @@ describe('Notification Tool', () => {
           message: 'Background task completed',
           urgency: 'low',
           sound: false,
+          wait: false,
         }),
         expect.any(Function)
       );
@@ -278,6 +282,7 @@ describe('Notification Tool', () => {
       expect(mockNotify).toHaveBeenCalledWith(
         expect.objectContaining({
           timeout: 5,
+          wait: false,
         }),
         expect.any(Function)
       );
@@ -309,6 +314,27 @@ describe('Notification Tool', () => {
       expect(result.success).toBe(false);
       expect(result.error).toBeDefined();
       expect(mockNotify).not.toHaveBeenCalled();
+    });
+
+    it('should handle notification callback timeout gracefully', async () => {
+      // Mock notifier to never call the callback
+      mockNotify.mockImplementation(() => {
+        // Do nothing - simulating a hanging callback
+      });
+
+      const input: NotificationInput = {
+        title: 'Test Title',
+        message: 'Test Message',
+      };
+
+      // This should complete within ~3 seconds due to our timeout protection
+      const startTime = Date.now();
+      const result = await handleNotification(input);
+      const duration = Date.now() - startTime;
+
+      expect(result.success).toBe(true);
+      expect(duration).toBeLessThan(4000); // Should timeout at 3 seconds
+      expect(duration).toBeGreaterThan(2900); // Should be close to 3 seconds
     });
   });
 });

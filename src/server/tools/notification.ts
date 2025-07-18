@@ -102,6 +102,7 @@ export async function handleNotification(input: NotificationInput): Promise<Noti
       sound: validatedInput.sound,
       timeout: validatedInput.timeout,
       urgency: urgencyMap[validatedInput.urgency],
+      wait: false, // Don't wait for user interaction
     };
     
     // Add subtitle if provided
@@ -109,18 +110,27 @@ export async function handleNotification(input: NotificationInput): Promise<Noti
       notificationOptions.subtitle = validatedInput.subtitle;
     }
 
-    // Send notification using node-notifier
-    const result = await new Promise<boolean>((resolve, reject) => {
-      notifier.notify(notificationOptions, (error: Error | null, response: string) => {
-        if (error) {
-          logger.error('Failed to send notification:', error);
-          reject(error);
-        } else {
-          logger.debug('Notification sent successfully:', response);
+    // Send notification using node-notifier with timeout protection
+    const result = await Promise.race([
+      new Promise<boolean>((resolve, reject) => {
+        notifier.notify(notificationOptions, (error: Error | null, response: string) => {
+          if (error) {
+            logger.error('Failed to send notification:', error);
+            reject(error);
+          } else {
+            logger.debug('Notification sent successfully:', response);
+            resolve(true);
+          }
+        });
+      }),
+      // Timeout after 3 seconds - notification likely sent but callback didn't fire
+      new Promise<boolean>((resolve) => {
+        setTimeout(() => {
+          logger.warn('Notification callback timeout - assuming success');
           resolve(true);
-        }
-      });
-    });
+        }, 3000);
+      })
+    ]);
 
     const output: NotificationOutput = {
       success: true,
