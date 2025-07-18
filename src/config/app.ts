@@ -46,7 +46,7 @@ export const APP_CONFIG: AppConfig = {
   get version() {
     return packageJson.version;
   },
-  description: 'MCPing - A Model Context Protocol server that enables desktop notifications on macOS through AI assistants',
+  description: 'The fastest way to get desktop notifications from your AI assistant! 🔔',
   brandName: 'Toolprint',
 } as const;
 

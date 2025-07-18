@@ -1,16 +1,16 @@
 {
   "name": "@toolprint/mcping-mcp",
   "version": "0.0.1",
-  "description": "MCPing - A Model Context Protocol server that enables desktop notifications on macOS through AI assistants",
+  "description": "The fastest way to get desktop notifications from your AI assistant! 🔔",
   "type": "module",
   "main": "./dist/index.js",
   "bin": {
-    "mcping-mcp": "./dist/index.js"
+    "mcping-mcp": "./dist/bin.js"
   },
   "scripts": {
-    "build": "tsc && cp -r src/resources dist/",
+    "build": "tsc && cp -r src/resources dist/ && chmod +x dist/bin.js",
     "dev": "tsc --watch & nodemon --watch dist --exec node dist/index.js",
-    "start": "node dist/index.js",
+    "start": "node dist/bin.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage --exclude '**/integration/**'",
@@ -70,5 +70,8 @@
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

@@ -4,9 +4,9 @@
 [![npm version](https://img.shields.io/npm/v/@toolprint/mcping-mcp.svg)](https://www.npmjs.com/package/@toolprint/mcping-mcp)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
 
-MCPing is a Model Context Protocol (MCP) server that enables AI assistants to send desktop notifications on macOS. 
+> I got a ping! 🎉 The spiciest way to make your Mac go ding-dong when your AI has something to say!
 
-*"I got a ping!"* - Send notifications from your AI assistant with customizable titles, messages, urgency levels, and more.
+MCPing is a Model Context Protocol (MCP) server that enables AI assistants to send desktop notifications on macOS. Finally, your AI can tap you on the shoulder instead of just sitting there quietly being brilliant.
 
 ## Installation
 

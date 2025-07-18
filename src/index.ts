@@ -16,7 +16,7 @@ displayBanner(APP_CONFIG.appName);
 const program = new Command();
 
 program
-  .name('mcp-server')
+  .name(APP_CONFIG.technicalName)
   .description(APP_CONFIG.description)
   .version(APP_CONFIG.version);
 
