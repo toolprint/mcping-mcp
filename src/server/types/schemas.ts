@@ -10,12 +10,15 @@ export const EchoInputSchema = z.object({
 export const HealthInputSchema = z.object({});
 
 export const NotificationInputSchema = z.object({
-  title: z.string().min(1, 'Title cannot be empty'),
-  message: z.string().min(1, 'Message cannot be empty'),
-  subtitle: z.string().optional(),
+  // Required fields
+  title: z.string().min(1, 'Title cannot be empty').max(100, 'Title must be 100 characters or less'),
+  message: z.string().min(1, 'Message cannot be empty').max(500, 'Message must be 500 characters or less'),
+  
+  // Optional fields
+  subtitle: z.string().max(100, 'Subtitle must be 100 characters or less').optional(),
   urgency: z.enum(['low', 'normal', 'critical']).default('normal'),
   sound: z.boolean().default(true),
-  timeout: z.number().int().min(0).max(60).default(5),
+  timeout: z.number().int().min(1).max(60).default(10),
 });
 
 // Tool output schemas
@@ -33,8 +36,9 @@ export const HealthOutputSchema = z.object({
 
 export const NotificationOutputSchema = z.object({
   success: z.boolean(),
-  message: z.string(),
   notificationId: z.string().optional(),
+  error: z.string().optional(),
+  timestamp: z.number(),
 });
 
 // Server configuration schema

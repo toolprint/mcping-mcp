@@ -18,15 +18,18 @@ export const notificationTool: Tool = {
         type: 'string',
         description: 'The notification title',
         minLength: 1,
+        maxLength: 100,
       },
       message: {
         type: 'string',
         description: 'The notification message body',
         minLength: 1,
+        maxLength: 500,
       },
       subtitle: {
         type: 'string',
         description: 'Optional subtitle text displayed below the title',
+        maxLength: 100,
       },
       urgency: {
         type: 'string',
@@ -41,10 +44,10 @@ export const notificationTool: Tool = {
       },
       timeout: {
         type: 'number',
-        description: 'Notification timeout in seconds (0-60)',
-        minimum: 0,
+        description: 'Notification timeout in seconds (1-60)',
+        minimum: 1,
         maximum: 60,
-        default: 5,
+        default: 10,
       },
     },
     required: ['title', 'message'],
@@ -56,75 +59,87 @@ export const notificationTool: Tool = {
         type: 'boolean',
         description: 'Whether the notification was sent successfully',
       },
-      message: {
-        type: 'string',
-        description: 'Status message about the notification',
-      },
       notificationId: {
         type: 'string',
-        description: 'Optional identifier for the notification',
+        description: 'Unique identifier for the notification',
+      },
+      error: {
+        type: 'string',
+        description: 'Error message if the notification failed',
+      },
+      timestamp: {
+        type: 'number',
+        description: 'Unix timestamp when the notification was sent',
       },
     },
-    required: ['success', 'message'],
+    required: ['success', 'timestamp'],
   },
 };
 
 export async function handleNotification(input: NotificationInput): Promise<NotificationOutput> {
   logger.debug('Executing notification tool with input:', input);
-  
+
   try {
     // Validate input
     const validatedInput = NotificationInputSchema.parse(input);
     
-    // Map urgency to macOS notification priority
+    // Generate unique notification ID
+    const notificationId = `notification-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const timestamp = Date.now();
+
+    // Map urgency to macOS notification priority (enhanced mapping)
     const urgencyMap = {
       low: 'low',
       normal: 'normal', 
       critical: 'critical',
     };
     
-    // Configure notification options
+    // Prepare notification options
     const notificationOptions: any = {
       title: validatedInput.title,
       message: validatedInput.message,
       sound: validatedInput.sound,
       timeout: validatedInput.timeout,
+      urgency: urgencyMap[validatedInput.urgency],
     };
     
     // Add subtitle if provided
     if (validatedInput.subtitle) {
       notificationOptions.subtitle = validatedInput.subtitle;
     }
-    
-    // Set urgency level (maps to macOS priority)
-    notificationOptions.urgency = urgencyMap[validatedInput.urgency];
-    
-    // Send notification
-    const result = await new Promise<any>((resolve, reject) => {
-      notifier.notify(notificationOptions, (error, response, metadata) => {
+
+    // Send notification using node-notifier
+    const result = await new Promise<boolean>((resolve, reject) => {
+      notifier.notify(notificationOptions, (error: Error | null, response: string) => {
         if (error) {
+          logger.error('Failed to send notification:', error);
           reject(error);
         } else {
-          resolve({ response, metadata });
+          logger.debug('Notification sent successfully:', response);
+          resolve(true);
         }
       });
     });
-    
+
     const output: NotificationOutput = {
       success: true,
-      message: `Notification sent successfully with ${validatedInput.urgency} urgency`,
-      notificationId: result.metadata?.id || undefined,
+      notificationId,
+      timestamp,
     };
-    
+
     // Validate output
     NotificationOutputSchema.parse(output);
-    
-    logger.debug('Notification tool executed successfully');
+
+    logger.info('Notification tool executed successfully', {
+      notificationId,
+      title: validatedInput.title,
+      urgency: validatedInput.urgency,
+    });
+
     return output;
-    
   } catch (error) {
-    logger.error('Error sending notification:', error);
-    
+    logger.error('Error executing notification tool:', error);
+
     // Handle common errors with helpful messages
     let errorMessage = 'Failed to send notification';
     
@@ -134,18 +149,19 @@ export async function handleNotification(input: NotificationInput): Promise<Noti
       } else if (error.message.includes('timeout')) {
         errorMessage = 'Notification timeout - please check your notification settings';
       } else {
-        errorMessage = `Notification error: ${error.message}`;
+        errorMessage = error.message;
       }
     }
-    
+
     const output: NotificationOutput = {
       success: false,
-      message: errorMessage,
+      error: errorMessage,
+      timestamp: Date.now(),
     };
-    
-    // Validate output
+
+    // Validate output even in error case
     NotificationOutputSchema.parse(output);
-    
+
     return output;
   }
 }

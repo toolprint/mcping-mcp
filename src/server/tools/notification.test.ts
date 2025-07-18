@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { handleNotification } from './notification.js';
+import { handleNotification, notificationTool } from './notification.js';
 import { NotificationInput } from '../types/schemas.js';
 
 // Mock node-notifier
@@ -14,175 +14,193 @@ vi.mock('../../utils/logger.js', () => ({
   logger: {
     debug: vi.fn(),
     error: vi.fn(),
+    info: vi.fn(),
   },
 }));
 
-describe('notification tool', () => {
-  let mockNotifier: any;
-  
-  beforeEach(async () => {
-    mockNotifier = await import('node-notifier');
+import notifier from 'node-notifier';
+
+describe('Notification Tool', () => {
+  beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('should send basic notification successfully', async () => {
-    const mockNotify = vi.mocked(mockNotifier.default.notify);
-    mockNotify.mockImplementation((options, callback) => {
-      callback(null, 'success', { id: 'test-id' });
+  describe('notificationTool', () => {
+    it('should have correct tool definition', () => {
+      expect(notificationTool.name).toBe('send-notification');
+      expect(notificationTool.description).toBe('Send a desktop notification on macOS with subtitle and urgency support');
+      expect(notificationTool.inputSchema).toBeDefined();
+      expect(notificationTool.outputSchema).toBeDefined();
     });
 
-    const input: NotificationInput = {
-      title: 'Test Title',
-      message: 'Test Message',
-      urgency: 'normal',
-      sound: true,
-      timeout: 5,
-    };
+    it('should have required fields in input schema', () => {
+      const required = notificationTool.inputSchema.required;
+      expect(required).toContain('title');
+      expect(required).toContain('message');
+    });
 
-    const result = await handleNotification(input);
+    it('should have correct output schema structure', () => {
+      const properties = notificationTool.outputSchema.properties;
+      expect(properties).toHaveProperty('success');
+      expect(properties).toHaveProperty('timestamp');
+      expect(properties).toHaveProperty('notificationId');
+      expect(properties).toHaveProperty('error');
+    });
+  });
 
-    expect(result.success).toBe(true);
-    expect(result.message).toContain('normal urgency');
-    expect(result.notificationId).toBe('test-id');
-    expect(mockNotify).toHaveBeenCalledWith(
-      expect.objectContaining({
+  describe('handleNotification', () => {
+    const mockNotify = vi.mocked(notifier.notify);
+
+    it('should send notification successfully with minimal input', async () => {
+      mockNotify.mockImplementation((_options, callback) => {
+        callback(null, 'notification sent');
+      });
+
+      const input: NotificationInput = {
         title: 'Test Title',
         message: 'Test Message',
-        urgency: 'normal',
-        sound: true,
-        timeout: 5,
-      }),
-      expect.any(Function)
-    );
-  });
+      };
 
-  it('should send notification with subtitle and critical urgency', async () => {
-    const mockNotify = vi.mocked(mockNotifier.default.notify);
-    mockNotify.mockImplementation((options, callback) => {
-      callback(null, 'success', { id: 'test-id-2' });
+      const result = await handleNotification(input);
+
+      expect(result.success).toBe(true);
+      expect(result.notificationId).toBeDefined();
+      expect(result.timestamp).toBeDefined();
+      expect(result.error).toBeUndefined();
+      expect(mockNotify).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: 'Test Title',
+          message: 'Test Message',
+          sound: true,
+          timeout: 10,
+          urgency: 'normal',
+        }),
+        expect.any(Function)
+      );
     });
 
-    const input: NotificationInput = {
-      title: 'Critical Alert',
-      message: 'System failure detected',
-      subtitle: 'Immediate attention required',
-      urgency: 'critical',
-      sound: true,
-      timeout: 10,
-    };
+    it('should send notification with all optional fields including subtitle', async () => {
+      mockNotify.mockImplementation((_options, callback) => {
+        callback(null, 'notification sent');
+      });
 
-    const result = await handleNotification(input);
-
-    expect(result.success).toBe(true);
-    expect(result.message).toContain('critical urgency');
-    expect(mockNotify).toHaveBeenCalledWith(
-      expect.objectContaining({
-        title: 'Critical Alert',
-        message: 'System failure detected',
-        subtitle: 'Immediate attention required',
+      const input: NotificationInput = {
+        title: 'Test Title',
+        message: 'Test Message',
+        subtitle: 'Test Subtitle',
+        sound: false,
+        timeout: 30,
         urgency: 'critical',
-        sound: true,
-        timeout: 10,
-      }),
-      expect.any(Function)
-    );
-  });
+      };
 
-  it('should handle low urgency notification without sound', async () => {
-    const mockNotify = vi.mocked(mockNotifier.default.notify);
-    mockNotify.mockImplementation((options, callback) => {
-      callback(null, 'success', { id: 'test-id-3' });
+      const result = await handleNotification(input);
+
+      expect(result.success).toBe(true);
+      expect(mockNotify).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: 'Test Title',
+          message: 'Test Message',
+          subtitle: 'Test Subtitle',
+          sound: false,
+          timeout: 30,
+          urgency: 'critical',
+        }),
+        expect.any(Function)
+      );
     });
 
-    const input: NotificationInput = {
-      title: 'Info Update',
-      message: 'Background task completed',
-      urgency: 'low',
-      sound: false,
-      timeout: 3,
-    };
+    it('should handle low urgency notifications', async () => {
+      mockNotify.mockImplementation((_options, callback) => {
+        callback(null, 'notification sent');
+      });
 
-    const result = await handleNotification(input);
-
-    expect(result.success).toBe(true);
-    expect(result.message).toContain('low urgency');
-    expect(mockNotify).toHaveBeenCalledWith(
-      expect.objectContaining({
+      const input: NotificationInput = {
         title: 'Info Update',
         message: 'Background task completed',
         urgency: 'low',
         sound: false,
-        timeout: 3,
-      }),
-      expect.any(Function)
-    );
-  });
+      };
 
-  it('should handle notification errors gracefully', async () => {
-    const mockNotify = vi.mocked(mockNotifier.default.notify);
-    mockNotify.mockImplementation((options, callback) => {
-      callback(new Error('Permission denied'), null, null);
+      const result = await handleNotification(input);
+
+      expect(result.success).toBe(true);
+      expect(mockNotify).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: 'Info Update',
+          message: 'Background task completed',
+          urgency: 'low',
+          sound: false,
+        }),
+        expect.any(Function)
+      );
     });
 
-    const input: NotificationInput = {
-      title: 'Test',
-      message: 'Test message',
-      urgency: 'normal',
-      sound: true,
-      timeout: 5,
-    };
+    it('should handle notification errors with helpful messages', async () => {
+      const error = new Error('Permission denied');
+      mockNotify.mockImplementation((_options, callback) => {
+        callback(error, '');
+      });
 
-    const result = await handleNotification(input);
+      const input: NotificationInput = {
+        title: 'Test Title',
+        message: 'Test Message',
+      };
 
-    expect(result.success).toBe(false);
-    expect(result.message).toContain('Notification permission denied');
-    expect(result.message).toContain('System Preferences');
-  });
+      const result = await handleNotification(input);
 
-  it('should validate input schema', async () => {
-    const mockNotify = vi.mocked(mockNotifier.default.notify);
-
-    const invalidInput = {
-      title: '', // Empty title should fail validation
-      message: 'Test message',
-    } as NotificationInput;
-
-    const result = await handleNotification(invalidInput);
-
-    expect(result.success).toBe(false);
-    expect(result.message).toContain('error');
-    expect(mockNotify).not.toHaveBeenCalled();
-  });
-
-  it('should use default values for optional fields', async () => {
-    const mockNotify = vi.mocked(mockNotifier.default.notify);
-    mockNotify.mockImplementation((options, callback) => {
-      callback(null, 'success', { id: 'test-id-4' });
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('Notification permission denied');
+      expect(result.error).toContain('System Preferences');
+      expect(result.timestamp).toBeDefined();
+      expect(result.notificationId).toBeUndefined();
     });
 
-    const input: NotificationInput = {
-      title: 'Simple Test',
-      message: 'Simple message',
-      urgency: 'normal',
-      sound: true,
-      timeout: 5,
-    };
+    it('should validate input and reject invalid data', async () => {
+      const input = {
+        title: '', // Invalid: empty title
+        message: 'Test Message',
+      } as NotificationInput;
 
-    const result = await handleNotification(input);
+      const result = await handleNotification(input);
 
-    expect(result.success).toBe(true);
-    expect(mockNotify).toHaveBeenCalledWith(
-      expect.objectContaining({
-        title: 'Simple Test',
-        message: 'Simple message',
-        urgency: 'normal',
-        sound: true,
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+      expect(mockNotify).not.toHaveBeenCalled();
+    });
+
+    it('should validate input length constraints', async () => {
+      const input = {
+        title: 'a'.repeat(101), // Invalid: too long
+        message: 'Test Message',
+      } as NotificationInput;
+
+      const result = await handleNotification(input);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+      expect(mockNotify).not.toHaveBeenCalled();
+    });
+
+    it('should handle timeout values correctly', async () => {
+      mockNotify.mockImplementation((_options, callback) => {
+        callback(null, 'notification sent');
+      });
+
+      const input: NotificationInput = {
+        title: 'Test Title',
+        message: 'Test Message',
         timeout: 5,
-      }),
-      expect.any(Function)
-    );
-    
-    // Should not include subtitle if not provided
-    expect(mockNotify.mock.calls[0][0]).not.toHaveProperty('subtitle');
+      };
+
+      const result = await handleNotification(input);
+
+      expect(result.success).toBe(true);
+      expect(mockNotify).toHaveBeenCalledWith(
+        expect.objectContaining({
+          timeout: 5,
+        }),
+        expect.any(Function)
+      );
+    });
   });
 });
