@@ -48,54 +48,32 @@ describe('MCP Client Integration Tests', () => {
       const tools = await client.listTools();
       
       expect(tools).toBeDefined();
-      expect(tools.tools).toHaveLength(4);
+      expect(tools.tools).toHaveLength(1);
       
       const toolNames = tools.tools.map(tool => tool.name);
-      expect(toolNames).toContain('hello-world');
-      expect(toolNames).toContain('echo');
-      expect(toolNames).toContain('health');
+      expect(toolNames).toContain('send-notification');
 
-      // Check tool schemas
-      const helloWorldTool = tools.tools.find(t => t.name === 'hello-world');
-      expect(helloWorldTool).toBeDefined();
-      expect(helloWorldTool!.description).toBe('Returns a simple greeting message');
-      expect(helloWorldTool!.inputSchema).toBeDefined();
-
-      const echoTool = tools.tools.find(t => t.name === 'echo');
-      expect(echoTool).toBeDefined();
-      expect(echoTool!.description).toBe('Echoes back the provided text');
-      expect((echoTool!.inputSchema as any).properties?.text).toBeDefined();
+      // Check notification tool schema
+      const notificationTool = tools.tools.find(t => t.name === 'send-notification');
+      expect(notificationTool).toBeDefined();
+      expect(notificationTool!.description).toBe('Send a desktop notification on macOS with subtitle and urgency support');
+      expect(notificationTool!.inputSchema).toBeDefined();
+      expect((notificationTool!.inputSchema as any).properties?.title).toBeDefined();
+      expect((notificationTool!.inputSchema as any).properties?.message).toBeDefined();
+      expect((notificationTool!.inputSchema as any).properties?.subtitle).toBeDefined();
+      expect((notificationTool!.inputSchema as any).properties?.urgency).toBeDefined();
 
       console.log('Available tools:', tools.tools);
     });
 
-    test('should call hello-world tool successfully', async () => {
+    test('should call send-notification tool successfully', async () => {
       const result = await client.callTool({
-        name: 'hello-world',
-        arguments: {},
-      });
-
-      expect(result).toBeDefined();
-      expect((result as any).content).toHaveLength(1);
-      expect((result as any).content[0].type).toBe('text');
-      
-      const responseText = (result as any).content[0].text;
-      const parsedResponse = JSON.parse(responseText);
-      
-      expect(parsedResponse).toEqual({
-        message: `Hello from ${APP_CONFIG.appName}!`,
-      });
-
-      console.log('Hello-world tool response:', parsedResponse);
-    });
-
-    test('should call echo tool with text input', async () => {
-      const testText = 'Integration test message';
-      
-      const result = await client.callTool({
-        name: 'echo',
+        name: 'send-notification',
         arguments: {
-          text: testText,
+          title: 'Integration Test',
+          message: 'Testing notification functionality',
+          subtitle: 'Test Suite',
+          urgency: 'normal',
         },
       });
 
@@ -106,31 +84,11 @@ describe('MCP Client Integration Tests', () => {
       const responseText = (result as any).content[0].text;
       const parsedResponse = JSON.parse(responseText);
       
-      expect(parsedResponse).toEqual({
-        echo: testText,
-      });
+      expect(parsedResponse.success).toBe(true);
+      expect(parsedResponse.notificationId).toBeDefined();
+      expect(parsedResponse.timestamp).toBeDefined();
 
-      console.log('Echo tool response:', parsedResponse);
-    });
-
-    test('should call health tool successfully', async () => {
-      const result = await client.callTool({
-        name: 'health',
-        arguments: {},
-      });
-
-      expect(result).toBeDefined();
-      expect((result as any).content).toHaveLength(1);
-      expect((result as any).content[0].type).toBe('text');
-      
-      const responseText = (result as any).content[0].text;
-      const parsedResponse = JSON.parse(responseText);
-      
-      expect(parsedResponse).toEqual({
-        status: 'green',
-      });
-
-      console.log('Health tool response:', parsedResponse);
+      console.log('Send-notification tool response:', parsedResponse);
     });
 
     test('should handle invalid tool name gracefully', async () => {
@@ -142,12 +100,13 @@ describe('MCP Client Integration Tests', () => {
       ).rejects.toThrow();
     });
 
-    test('should handle invalid echo tool arguments', async () => {
+    test('should handle invalid notification tool arguments', async () => {
       await expect(
         client.callTool({
-          name: 'echo',
+          name: 'send-notification',
           arguments: {
-            text: '',
+            title: '', // Empty title should fail
+            message: 'Test message',
           },
         })
       ).rejects.toThrow();
@@ -201,7 +160,7 @@ describe('MCP Client Integration Tests', () => {
     test('should perform a complete client-server interaction workflow', async () => {
       // 1. List tools
       const tools = await client.listTools();
-      expect(tools.tools).toHaveLength(4);
+      expect(tools.tools).toHaveLength(1);
 
       // 2. List resources
       const resources = await client.listResources();
@@ -213,32 +172,27 @@ describe('MCP Client Integration Tests', () => {
       });
       expect(welcomeResource.contents[0].text).toContain('Welcome');
 
-      // 4. Check server health
-      const healthResult = await client.callTool({
-        name: 'health',
-        arguments: {},
-      });
-      const healthResponse = JSON.parse((healthResult as any).content[0].text);
-      expect(healthResponse.status).toBe('green');
-
-      // 5. Use echo tool with dynamic content
-      const dynamicMessage = `Test message at ${new Date().toISOString()}`;
-      const echoResult = await client.callTool({
-        name: 'echo',
-        arguments: {
-          text: dynamicMessage,
-        },
-      });
-      const echoResponse = JSON.parse((echoResult as any).content[0].text);
-      expect(echoResponse.echo).toBe(dynamicMessage);
-
-      // 6. Get greeting
-      const greetingResult = await client.callTool({
-        name: 'hello-world',
-        arguments: {},
-      });
-      const greetingResponse = JSON.parse((greetingResult as any).content[0].text);
-      expect(greetingResponse.message).toBe(`Hello from ${APP_CONFIG.appName}!`);
+      // 4. Test notification tool with different urgency levels
+      const urgencyLevels = ['low', 'normal', 'critical'] as const;
+      
+      for (const urgency of urgencyLevels) {
+        const notificationResult = await client.callTool({
+          name: 'send-notification',
+          arguments: {
+            title: `Integration Test - ${urgency.toUpperCase()}`,
+            message: `Testing ${urgency} urgency notification at ${new Date().toISOString()}`,
+            subtitle: 'Workflow Test',
+            urgency: urgency,
+          },
+        });
+        
+        const notificationResponse = JSON.parse((notificationResult as any).content[0].text);
+        expect(notificationResponse.success).toBe(true);
+        expect(notificationResponse.notificationId).toBeDefined();
+        expect(notificationResponse.timestamp).toBeDefined();
+        
+        console.log(`${urgency} urgency notification sent:`, notificationResponse.notificationId);
+      }
 
       console.log('Complete workflow test passed successfully!');
     });
