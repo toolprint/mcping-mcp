@@ -1,25 +1,26 @@
-# MCP TypeScript Server Template
+# DingDong - macOS Notification MCP Server
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.2+-blue.svg)](https://www.typescriptlang.org/)
 [![MCP SDK](https://img.shields.io/badge/MCP%20SDK-1.0.0-purple.svg)](https://github.com/modelcontextprotocol/typescript-sdk)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
+[![macOS](https://img.shields.io/badge/macOS-Compatible-blue.svg)](https://www.apple.com/macos/)
 
-A production-ready Model Context Protocol (MCP) server template built with TypeScript, featuring dual transport support, comprehensive tooling, and best practices for building MCP servers.
+A Model Context Protocol (MCP) server that enables AI assistants to send desktop notifications on macOS. Built with TypeScript and featuring comprehensive notification options including subtitle, urgency levels, and customizable settings.
 
 ## ✨ Features
 
+- 🔔 **macOS Notifications**: Send desktop notifications through macOS Notification Center
+- 🎯 **Rich Notification Options**: Title, message, subtitle, urgency levels, and sound control
+- ⚡ **Urgency Levels**: Low, normal, and critical priority notifications
+- 🎨 **Customizable**: Configurable timeout, sound, and subtitle support
 - 🤖 **MCP Protocol Compliance**: Full Model Context Protocol implementation using official SDK
-- 🚀 **Dual Transport Support**: Runtime-selectable stdio and Streamable HTTP transports
-- 🛠️ **Built-in Tools**: Example tools (hello-world, echo, health) with proper Zod schemas
-- 📚 **Resource System**: File-based resource serving with static prompts
+- 🚀 **Dual Transport Support**: Runtime-selectable stdio and HTTP transports
 - 🎯 **TypeScript**: ES2022 target with ESNext modules and full type safety
-- 🧪 **Testing**: Comprehensive Vitest setup with coverage reporting
+- 🧪 **Testing**: Comprehensive unit and integration test suite
 - 🔧 **Developer Experience**: Hot-reload, linting, formatting, and build tools
 - 📦 **CLI Interface**: Commander.js-based CLI with proper validation
 - 🎨 **Structured Logging**: Pino-based logging with pretty console output
-- 🔄 **Event System**: Type-safe event emitter for tool change notifications
 - 🏗️ **Clean Architecture**: Well-organized codebase following SOLID principles
 
 ## 🚀 Quick Start
@@ -27,14 +28,15 @@ A production-ready Model Context Protocol (MCP) server template built with TypeS
 ### Prerequisites
 
 - [Node.js](https://nodejs.org/) 18.0.0 or higher
+- macOS (required for desktop notifications)
 - npm or yarn package manager
 
 ### Installation
 
 ```bash
-# Clone or create from template
+# Clone the repository
 git clone <your-repo-url>
-cd mcp-typescript-server
+cd dingdong-notification-server
 
 # Install dependencies
 npm install
@@ -48,7 +50,7 @@ npm run build
 #### Stdio Transport (Default)
 
 ```bash
-# Run with stdio transport
+# Run with stdio transport (for use with Claude Code)
 npm start
 
 # Or directly with built binary
@@ -78,6 +80,44 @@ npm start -- --help
 npm start -- --verbose --transport http
 ```
 
+#### Test Notification
+
+Once the server is running, you can test notifications:
+
+```bash
+# Basic notification
+curl -X POST http://localhost:3000/mcp -H "Content-Type: application/json" -d '{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "send-notification",
+    "arguments": {
+      "title": "Test Notification",
+      "message": "Hello from DingDong!"
+    }
+  }
+}'
+
+# Advanced notification with subtitle and urgency
+curl -X POST http://localhost:3000/mcp -H "Content-Type: application/json" -d '{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "send-notification",
+    "arguments": {
+      "title": "Critical Alert",
+      "message": "This is an important message",
+      "subtitle": "DingDong Server",
+      "urgency": "critical",
+      "sound": true,
+      "timeout": 15
+    }
+  }
+}'
+```
+
 ## 🏗️ Architecture
 
 ### Project Structure
@@ -97,9 +137,7 @@ src/
 │   ├── tools/
 │   │   ├── index.ts           # Tool registry and exports
 │   │   ├── registry.ts        # Dynamic tool registry with events
-│   │   ├── hello-world.ts     # Hello world tool
-│   │   ├── echo.ts            # Echo tool
-│   │   └── health.ts          # Health check tool
+│   │   └── notification.ts    # macOS notification tool
 │   ├── resources/
 │   │   ├── index.ts           # Resource provider
 │   │   └── prompts.ts         # Prompt resource management
@@ -111,7 +149,7 @@ src/
 └── utils/
     ├── logger.ts              # Logging utility (re-export)
     ├── logging.ts             # Pino-based logging implementation
-    ├── output.ts              # Console output utilities with banner system
+    ├── banner.ts              # Console banner utilities
     └── config.ts              # Configuration management
 ```
 
@@ -119,9 +157,23 @@ src/
 
 | Tool | Description | Input | Output |
 |------|-------------|--------|--------|
-| `hello-world` | Returns a simple greeting message | None | `{ message: string }` |
-| `echo` | Echoes back the provided text | `{ text: string }` | `{ echo: string }` |
-| `health` | Returns server health status | None | `{ status: "green" \| "yellow" \| "red" }` |
+| `send-notification` | Send a desktop notification on macOS | `{ title: string, message: string, subtitle?: string, urgency?: "low" \| "normal" \| "critical", sound?: boolean, timeout?: number }` | `{ success: boolean, notificationId?: string, error?: string, timestamp: number }` |
+
+#### Notification Tool Details
+
+**Input Parameters:**
+- `title` (required): The notification title (1-100 characters)
+- `message` (required): The notification message body (1-500 characters)
+- `subtitle` (optional): Subtitle text displayed below the title (max 100 characters)
+- `urgency` (optional): Notification urgency level - "low", "normal", or "critical" (default: "normal")
+- `sound` (optional): Whether to play a sound with the notification (default: true)
+- `timeout` (optional): Notification timeout in seconds, 1-60 (default: 10)
+
+**Output:**
+- `success`: Boolean indicating if the notification was sent successfully
+- `notificationId`: Unique identifier for the notification (on success)
+- `error`: Error message if the notification failed (on failure)
+- `timestamp`: Unix timestamp when the notification was sent
 
 ### Available Resources
 
@@ -157,15 +209,28 @@ src/
 ```json
 {
   "mcpServers": {
-    "mcp-typescript-server": {
+    "dingdong-notification-server": {
       "command": "node",
-      "args": ["path/to/mcp-typescript-server/dist/index.js", "--transport", "stdio"]
+      "args": ["path/to/dingdong-notification-server/dist/index.js", "--transport", "stdio"]
     }
   }
 }
 ```
 
-2. Restart Claude Code and test the tools
+2. Restart Claude Code and test the notification tool:
+
+```
+Please send a notification with the title "Test from Claude" and message "This is a test notification from Claude Code"
+```
+
+#### Example Claude Code Usage
+
+Once configured, you can ask Claude Code to send notifications:
+
+- **Basic notification**: "Send a notification that says 'Task completed'"
+- **With subtitle**: "Send a notification with title 'Build Status', message 'Build completed successfully', and subtitle 'CI/CD Pipeline'"
+- **Critical alert**: "Send a critical notification about a system alert"
+- **Quiet notification**: "Send a low priority notification without sound"
 
 #### With HTTP Transport
 
@@ -217,13 +282,32 @@ export const myToolSchema = z.object({
 export const myTool: Tool = {
   name: 'my-tool',
   description: 'Description of my tool',
-  inputSchema: myToolSchema,
+  inputSchema: {
+    type: 'object',
+    properties: {
+      input: {
+        type: 'string',
+        description: 'Input parameter'
+      }
+    },
+    required: ['input']
+  },
 };
 
 export async function myToolHandler(args: z.infer<typeof myToolSchema>) {
   return { result: `Processed: ${args.input}` };
 }
 ```
+
+#### Notification Customization
+
+The notification tool can be extended to support additional features:
+
+- **App Icon**: Add custom app icons for different notification types
+- **Action Buttons**: Add interactive buttons to notifications
+- **Persistence**: Store notification history or preferences
+- **Scheduling**: Add support for delayed notifications
+- **Categories**: Group notifications by category or source
 
 #### Adding New Resources
 
@@ -257,6 +341,17 @@ The server uses a configuration management system that supports:
 - Verify port availability for HTTP transport
 - Check firewall settings for HTTP transport
 - Ensure stdio streams are properly configured for stdio transport
+
+**Notification permission errors**
+- Check that macOS notifications are enabled for Terminal or your terminal app
+- Go to System Preferences > Notifications & Focus > Terminal and ensure notifications are allowed
+- Test with a simple notification to verify permissions
+
+**Notification not appearing**
+- Check Do Not Disturb settings in macOS
+- Verify notification center settings
+- Test with different urgency levels (critical notifications may override some settings)
+- Check the console for error messages with `--verbose` flag
 
 **Tool execution errors**
 - Check tool input validation in server logs
