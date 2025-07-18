@@ -1,5 +1,6 @@
 import { Tool } from '@modelcontextprotocol/sdk/types.js';
 import notifier from 'node-notifier';
+import { z } from 'zod';
 import {
   NotificationInput,
   NotificationOutput,
@@ -143,13 +144,42 @@ export async function handleNotification(input: NotificationInput): Promise<Noti
     // Handle common errors with helpful messages
     let errorMessage = 'Failed to send notification';
     
-    if (error instanceof Error) {
-      if (error.message.includes('Permission denied')) {
-        errorMessage = 'Notification permission denied. Please allow notifications in System Preferences > Notifications';
-      } else if (error.message.includes('timeout')) {
-        errorMessage = 'Notification timeout - please check your notification settings';
-      } else {
-        errorMessage = error.message;
+    if (error instanceof z.ZodError) {
+      // Handle Zod validation errors
+      const firstError = error.errors[0];
+      if (firstError) {
+        const field = firstError.path.join('.');
+        
+        // Format validation errors in a user-friendly way
+        if (firstError.code === 'too_small' && firstError.minimum === 1) {
+          errorMessage = `${field.charAt(0).toUpperCase() + field.slice(1)} is required and cannot be empty`;
+        } else if (firstError.code === 'too_big') {
+          // Replace field names in the message for better readability
+          errorMessage = firstError.message.replace('String', 'Text');
+        } else {
+          errorMessage = firstError.message;
+        }
+      }
+    } else if (error instanceof Error) {
+      // Permission errors
+      if (error.message.includes('Permission denied') || error.message.includes('authorization')) {
+        errorMessage = 'Notification permission denied. Please allow notifications in System Preferences > Notifications > Terminal (or your app)';
+      } 
+      // Timeout errors
+      else if (error.message.includes('timeout')) {
+        errorMessage = 'Notification timeout - the notification system may be busy. Please try again';
+      }
+      // System unavailable
+      else if (error.message.includes('not available') || error.message.includes('NotificationCenter')) {
+        errorMessage = 'macOS Notification Center is not available. Please check that you are running on macOS';
+      }
+      // Rate limiting
+      else if (error.message.includes('rate limit') || error.message.includes('too many')) {
+        errorMessage = 'Too many notifications sent recently. Please wait a moment before sending more';
+      }
+      // Generic fallback
+      else {
+        errorMessage = `Notification error: ${error.message}`;
       }
     }
 

@@ -205,7 +205,7 @@ describe('Notification Functionality Integration Test', () => {
     const response = JSON.parse(result.content[0].text);
     expect(response.success).toBe(false);
     expect(response.error).toBeDefined();
-    expect(response.error).toContain('Title cannot be empty');
+    expect(response.error).toContain('Title is required and cannot be empty');
     
     console.log('✅ Invalid arguments properly rejected');
   });

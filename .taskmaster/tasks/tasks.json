@@ -92,7 +92,7 @@
             "title": "Improve error handling and messages",
             "description": "Add better error messages for common issues",
             "details": "Improve error handling for common scenarios like permission denied, invalid inputs, or notification system issues. Provide helpful error messages that guide developers on how to fix issues (e.g., 'Notification permission denied. Please allow notifications in System Preferences > Notifications').",
-            "status": "pending",
+            "status": "in-progress",
             "dependencies": [
               "2.1"
             ],
@@ -115,7 +115,7 @@
     "metadata": {
       "created": "2025-07-17T22:32:50.685Z",
       "description": "Default tasks context",
-      "updated": "2025-07-18T15:11:32.917Z"
+      "updated": "2025-07-18T15:22:52.863Z"
     }
   }
 }

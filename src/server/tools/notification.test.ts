@@ -155,6 +155,60 @@ describe('Notification Tool', () => {
       expect(result.notificationId).toBeUndefined();
     });
 
+    it('should handle system unavailable errors', async () => {
+      const error = new Error('NotificationCenter is not available');
+      mockNotify.mockImplementation((_options, callback) => {
+        callback(error, '');
+      });
+
+      const input: NotificationInput = {
+        title: 'Test Title',
+        message: 'Test Message',
+      };
+
+      const result = await handleNotification(input);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('macOS Notification Center is not available');
+      expect(result.error).toContain('running on macOS');
+    });
+
+    it('should handle rate limit errors', async () => {
+      const error = new Error('too many notifications');
+      mockNotify.mockImplementation((_options, callback) => {
+        callback(error, '');
+      });
+
+      const input: NotificationInput = {
+        title: 'Test Title',
+        message: 'Test Message',
+      };
+
+      const result = await handleNotification(input);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('Too many notifications sent recently');
+      expect(result.error).toContain('wait a moment');
+    });
+
+    it('should handle timeout errors gracefully', async () => {
+      const error = new Error('notification timeout');
+      mockNotify.mockImplementation((_options, callback) => {
+        callback(error, '');
+      });
+
+      const input: NotificationInput = {
+        title: 'Test Title',
+        message: 'Test Message',
+      };
+
+      const result = await handleNotification(input);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('Notification timeout');
+      expect(result.error).toContain('system may be busy');
+    });
+
     it('should validate input and reject invalid data', async () => {
       const input = {
         title: '', // Invalid: empty title
@@ -164,7 +218,33 @@ describe('Notification Tool', () => {
       const result = await handleNotification(input);
 
       expect(result.success).toBe(false);
-      expect(result.error).toBeDefined();
+      expect(result.error).toContain('Title is required and cannot be empty');
+      expect(mockNotify).not.toHaveBeenCalled();
+    });
+
+    it('should provide helpful message for long titles', async () => {
+      const input: NotificationInput = {
+        title: 'a'.repeat(101), // Too long
+        message: 'Test Message',
+      };
+
+      const result = await handleNotification(input);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('Title must be 100 characters or less');
+      expect(mockNotify).not.toHaveBeenCalled();
+    });
+
+    it('should provide helpful message for long messages', async () => {
+      const input: NotificationInput = {
+        title: 'Test Title',
+        message: 'a'.repeat(501), // Too long
+      };
+
+      const result = await handleNotification(input);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('Message must be 500 characters or less');
       expect(mockNotify).not.toHaveBeenCalled();
     });
 
@@ -201,6 +281,34 @@ describe('Notification Tool', () => {
         }),
         expect.any(Function)
       );
+    });
+
+    it('should provide helpful error for invalid urgency values', async () => {
+      const input = {
+        title: 'Test Title',
+        message: 'Test Message',
+        urgency: 'extreme', // Invalid urgency
+      } as any;
+
+      const result = await handleNotification(input);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('Invalid');
+      expect(mockNotify).not.toHaveBeenCalled();
+    });
+
+    it('should provide helpful error for invalid timeout values', async () => {
+      const input: NotificationInput = {
+        title: 'Test Title',
+        message: 'Test Message',
+        timeout: 100, // Too high (max is 60)
+      };
+
+      const result = await handleNotification(input);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+      expect(mockNotify).not.toHaveBeenCalled();
     });
   });
 });
