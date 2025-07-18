@@ -36,7 +36,7 @@
             "title": "Remove example tools and integrate notification tool",
             "description": "Clean up example tools and register the notification tool",
             "details": "Remove hello-world.ts, echo.ts, health.ts and their tests. Update src/server/tools/index.ts to export only the notification tool. Ensure the tool is properly registered in the tool registry.",
-            "status": "in-progress",
+            "status": "done",
             "dependencies": [
               "1.2"
             ],
@@ -115,7 +115,7 @@
     "metadata": {
       "created": "2025-07-17T22:32:50.685Z",
       "description": "Default tasks context",
-      "updated": "2025-07-18T13:32:41.151Z"
+      "updated": "2025-07-18T13:39:17.981Z"
     }
   }
 }
