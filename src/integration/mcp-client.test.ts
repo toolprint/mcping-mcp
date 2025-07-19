@@ -56,7 +56,7 @@ describe('MCP Client Integration Tests', () => {
       // Check notification tool schema
       const notificationTool = tools.tools.find(t => t.name === 'send-notification');
       expect(notificationTool).toBeDefined();
-      expect(notificationTool!.description).toBe('Send a desktop notification on macOS with subtitle and urgency support');
+      expect(notificationTool!.description).toBe('Send a desktop notification on macOS with icon, image, and sound customization');
       expect(notificationTool!.inputSchema).toBeDefined();
       expect((notificationTool!.inputSchema as any).properties?.title).toBeDefined();
       expect((notificationTool!.inputSchema as any).properties?.message).toBeDefined();
@@ -101,15 +101,21 @@ describe('MCP Client Integration Tests', () => {
     });
 
     test('should handle invalid notification tool arguments', async () => {
-      await expect(
-        client.callTool({
-          name: 'send-notification',
-          arguments: {
-            title: '', // Empty title should fail
-            message: 'Test message',
-          },
-        })
-      ).rejects.toThrow();
+      const result = await client.callTool({
+        name: 'send-notification',
+        arguments: {
+          title: '', // Empty title should fail
+          message: 'Test message',
+        },
+      });
+      
+      expect(result).toBeDefined();
+      expect(result.content).toHaveLength(1);
+      expect(result.content[0].type).toBe('text');
+      
+      const response = JSON.parse(result.content[0].text);
+      expect(response.success).toBe(false);
+      expect(response.error).toContain('Title is required and cannot be empty');
     });
   });
 

@@ -113,7 +113,7 @@ describe('Notification Functionality Integration Test', () => {
     expect(result).toBeDefined();
     expect(result.tools).toHaveLength(1);
     expect(result.tools[0].name).toBe('send-notification');
-    expect(result.tools[0].description).toBe('Send a desktop notification on macOS with subtitle and urgency support');
+    expect(result.tools[0].description).toBe('Send a desktop notification on macOS with icon, image, and sound customization');
     expect(result.tools[0].inputSchema).toBeDefined();
     expect(result.tools[0].inputSchema.required).toContain('title');
     expect(result.tools[0].inputSchema.required).toContain('message');

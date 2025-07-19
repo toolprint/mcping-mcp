@@ -115,7 +115,7 @@ export async function handleNotification(input: NotificationInput): Promise<Noti
     const validatedInput = NotificationInputSchema.parse(input);
     
     // Generate unique notification ID
-    const notificationId = `notification-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const notificationId = `notification-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
     const timestamp = Date.now();
 
     // Map urgency to macOS notification priority (enhanced mapping)
@@ -153,7 +153,7 @@ export async function handleNotification(input: NotificationInput): Promise<Noti
     }
 
     // Send notification using node-notifier with timeout protection
-    const result = await Promise.race([
+    await Promise.race([
       new Promise<boolean>((resolve, reject) => {
         notifier.notify(notificationOptions, (error: Error | null, response: string) => {
           if (error) {

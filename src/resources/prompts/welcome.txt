@@ -1,4 +1,4 @@
-Welcome to the MCP TypeScript Server!
+Welcome to the MCPing!
 
 This server provides a foundation for building Model Context Protocol servers with TypeScript.
 

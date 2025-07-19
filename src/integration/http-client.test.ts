@@ -261,7 +261,7 @@ describe('HTTP MCP Client Integration Tests', () => {
       const content = readResult.result.contents[0];
       expect(content.uri).toBe('prompt://welcome');
       expect(content.mimeType).toBe('text/plain');
-      expect(content.text).toContain('Welcome to the MCP TypeScript Server Template!');
+      expect(content.text).toContain('Welcome to the MCPing!');
 
       console.log('Resource content:', content.text);
     });
