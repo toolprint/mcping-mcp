@@ -1,6 +1,6 @@
 {
   "name": "@toolprint/mcping-mcp",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "The fastest way to get desktop notifications from your AI assistant! 🔔",
   "type": "module",
   "main": "./dist/index.js",
