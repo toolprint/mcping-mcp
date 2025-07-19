@@ -24,7 +24,11 @@
     },
     "mcping": {
       "type": "stdio",
-      "command": "mcping-mcp",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@toolprint/mcping-mcp@latest"
+      ],
       "env": {}
     }
   }
