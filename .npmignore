@@ -1,0 +1,57 @@
+# Development and build files
+src/
+*.ts
+!*.d.ts
+tsconfig.json
+vitest.config.ts
+.eslintrc.json
+.prettierrc
+
+# Test files
+**/*.test.js
+**/*.test.ts
+**/*.spec.js
+**/*.spec.ts
+**/integration/
+
+# Development directories
+.claude/
+.cursor/
+.taskmaster/
+docs/
+coverage/
+.nyc_output/
+
+# Environment and config
+.env
+.env.*
+*.local
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Git and GitHub
+.git/
+.github/
+.gitignore
+
+# Build tools
+justfile
+Brewfile
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Misc
+TODO_HTTP_TRANSPORT.md
+ARCHITECTURE.md
+CLAUDE.md
+.mcp.json.example
+.env.example
