@@ -4,7 +4,9 @@
  */
 
 import { toolRegistry } from './registry.js';
-import { logger } from '../../utils/logger.js';
+import { getLogger } from '../../utils/logging.js';
+
+const logger = getLogger();
 
 /**
  * Example dynamic tool: Calculator

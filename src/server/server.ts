@@ -7,7 +7,9 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import { tools, toolHandlers } from './tools/index.js';
 import { ResourceProvider } from './resources/index.js';
-import { logger } from '../utils/logger.js';
+import { getLogger } from '../utils/logging.js';
+
+const logger = getLogger();
 import { mcpEventEmitter } from './events/emitter.js';
 import { toolRegistry } from './tools/registry.js';
 import { ToolChangeEvent } from './events/types.js';

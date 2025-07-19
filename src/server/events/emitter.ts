@@ -1,6 +1,8 @@
 import { EventEmitter } from 'events';
 import { EventMap, EventType, EventData } from './types.js';
-import { logger } from '../../utils/logger.js';
+import { getLogger } from '../../utils/logging.js';
+
+const logger = getLogger();
 
 /**
  * Type-safe event emitter for MCP server events

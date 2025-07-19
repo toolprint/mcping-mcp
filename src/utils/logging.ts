@@ -22,6 +22,15 @@ export const DEFAULT_LOGGING_CONFIG: LoggingConfig = {
   colorize: true,
 };
 
+export const STDIO_LOGGING_CONFIG: LoggingConfig = {
+  level: process.env.NODE_ENV === 'development' ? 'debug' : 'info',
+  enableConsole: false,
+  enableFile: true,
+  serverName: APP_TECHNICAL_NAME,
+  format: 'pretty', // Always use pretty format for console
+  colorize: true,
+};
+
 export class Logger {
   private pinoLogger: pino.Logger;
   private config: LoggingConfig;
@@ -92,10 +101,10 @@ export class Logger {
   private createFileStream() {
     try {
       const logDir = join(homedir(), '.toolprint', this.config.serverName);
-      
+
       // Create directory synchronously on first use
       this.ensureLogDirectory(logDir);
-      
+
       const logFile = join(logDir, `${this.config.serverName}.log`);
       return createWriteStream(logFile, { flags: 'a' });
     } catch (error) {
@@ -157,7 +166,7 @@ export class Logger {
 }
 
 // Global logger instance
-export const logger = new Logger();
+let logger: Logger;
 
 // Convenience function to create a child logger
 export function createLogger(context: pino.Bindings, config?: Partial<LoggingConfig>): Logger {
@@ -165,4 +174,14 @@ export function createLogger(context: pino.Bindings, config?: Partial<LoggingCon
     return new Logger(config).child(context);
   }
   return logger.child(context);
+}
+
+export function getLogger(config?: Partial<LoggingConfig>): Logger {
+  if (config) {
+    return new Logger(config);
+  }
+  if (!logger) {
+    logger = new Logger();
+  }
+  return logger;
 }

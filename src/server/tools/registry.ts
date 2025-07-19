@@ -1,7 +1,7 @@
 import { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { mcpEventEmitter } from '../events/emitter.js';
 import { ToolChangeEvent } from '../events/types.js';
-import { logger } from '../../utils/logger.js';
+import { getLogger } from '../../utils/logging.js';
 
 export interface ToolHandler {
   (args: any): Promise<any>;
@@ -16,6 +16,7 @@ export interface RegistryTool extends Tool {
  */
 export class ToolRegistry {
   private tools = new Map<string, RegistryTool>();
+  private logger = getLogger();
 
   /**
    * Register a new tool
@@ -36,7 +37,7 @@ export class ToolRegistry {
       }
     };
 
-    logger.info(`Tool ${event.type}: ${tool.name}`);
+    this.logger.info(`Tool ${event.type}: ${tool.name}`);
     mcpEventEmitter.emit('toolChange', event);
   }
 
@@ -60,7 +61,7 @@ export class ToolRegistry {
       }
     };
 
-    logger.info(`Tool removed: ${toolName}`);
+    this.logger.info(`Tool removed: ${toolName}`);
     mcpEventEmitter.emit('toolChange', event);
     return true;
   }
@@ -121,7 +122,7 @@ export class ToolRegistry {
       mcpEventEmitter.emit('toolChange', event);
     });
 
-    logger.info('Tool registry cleared');
+    this.logger.info('Tool registry cleared');
   }
 }
 

@@ -7,7 +7,9 @@ import {
   NotificationInputSchema,
   NotificationOutputSchema,
 } from '../types/schemas.js';
-import { logger } from '../../utils/logger.js';
+import { getLogger } from '../../utils/logging.js';
+
+const logger = getLogger();
 
 export const notificationTool: Tool = {
   name: 'send-notification',

@@ -1,13 +1,14 @@
 import { promptResources, getWelcomePrompt } from './prompts.js';
 import { ResourceMetadata } from '../types/schemas.js';
-import { logger } from '../../utils/logger.js';
+import { getLogger } from '../../utils/logging.js';
 
 export class ResourceProvider {
   private resources: ResourceMetadata[] = [];
+  private logger = getLogger();
 
   constructor() {
     this.resources = [...promptResources];
-    logger.debug(`Initialized ResourceProvider with ${this.resources.length} resources`);
+    this.logger.debug(`Initialized ResourceProvider with ${this.resources.length} resources`);
   }
 
   listResources(): ResourceMetadata[] {
@@ -15,7 +16,7 @@ export class ResourceProvider {
   }
 
   async getResource(uri: string): Promise<{ content: string; mimeType?: string } | null> {
-    logger.debug(`Getting resource: ${uri}`);
+    this.logger.debug(`Getting resource: ${uri}`);
 
     switch (uri) {
       case 'prompt://welcome':
@@ -25,7 +26,7 @@ export class ResourceProvider {
           mimeType: 'text/plain',
         };
       default:
-        logger.warn(`Resource not found: ${uri}`);
+        this.logger.warn(`Resource not found: ${uri}`);
         return null;
     }
   }
