@@ -21,6 +21,11 @@
         "task-master-ai"
       ],
       "env": {}
+    },
+    "mcping": {
+      "type": "stdio",
+      "command": "mcping-mcp",
+      "env": {}
     }
   }
 }
