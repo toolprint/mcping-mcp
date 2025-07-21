@@ -5,6 +5,7 @@ import { getLogger, STDIO_LOGGING_CONFIG } from './utils/logging.js';
 import { APP_CONFIG } from './config/app.js';
 import chalk from 'chalk';
 import { ServerTransport } from './server/transports/types.js';
+import { displayServerBanner } from './utils/output.js';
 
 const program = new Command();
 
@@ -51,10 +52,7 @@ program.action(async (options) => {
       console.log(chalk.white(`  Transport: ${chalk.yellow(options.transport)}`));
 
       const port = parseInt(options.port, 10);
-      console.log(chalk.white(`  Address:   ${chalk.yellow(`http://${options.host}:${port}`)}`));
-
-      console.log(chalk.white(`  Version:   ${chalk.yellow(APP_CONFIG.version)}`));
-      console.log(); // Extra spacing
+      displayServerBanner(APP_CONFIG.appName, options.transport, port, options.host);
     }
 
     // Validate transport option

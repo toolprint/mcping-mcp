@@ -4,11 +4,35 @@ import { Console } from 'console';
 import { spawnSync } from 'child_process';
 import { isDefined } from './helpers.js';
 import { APP_CONFIG, APP_NAME, BRAND_NAME } from '../config/app.js';
+import { getActiveLoggingConfig } from './logging.js';
 
-const stdioDisplay = new Console({
-  stdout: process.stdout,
-  stderr: process.stderr,
-});
+// For stdio transport, use stderr for all display output to avoid interfering with MCP protocol
+const getStdioDisplay = () => {
+  const currentLoggingConfig = getActiveLoggingConfig()
+  // When enableConsole is false (stdio mode), use stderr for all output
+  // When enableConsole is true (HTTP mode), use stdout
+  if (currentLoggingConfig && !currentLoggingConfig.enableConsole) {
+    return new Console({
+      stdout: process.stderr,
+      stderr: process.stderr,
+    });
+  }
+
+  return new Console({
+    stdout: process.stdout,
+    stderr: process.stderr,
+  })
+}
+
+const getPreferredOutputStream = () => {
+  const currentLoggingConfig = getActiveLoggingConfig()
+  // When enableConsole is false (stdio mode), use stderr
+  // When enableConsole is true (HTTP mode), use stdout
+  if (currentLoggingConfig && !currentLoggingConfig.enableConsole) {
+    return process.stderr
+  }
+  return process.stdout
+}
 
 enum FigletFont {
   Standard = 'Standard',
@@ -34,7 +58,7 @@ export const output = {
    * @returns The console object
    */
   get console(): Console {
-    return stdioDisplay;
+    return getStdioDisplay();
   },
 
   /**
@@ -42,7 +66,7 @@ export const output = {
    * @param msg - The message to log
    */
   display: (msg: string) => {
-    stdioDisplay.log(msg);
+    getStdioDisplay().log(msg);
   },
 
   /**
@@ -50,7 +74,7 @@ export const output = {
    * @param msg - The message to display
    */
   displaySameLine: (msg: string) => {
-    process.stdout.write(msg);
+    getPreferredOutputStream().write(msg);
   },
 
   displayTypewriter: async (
@@ -78,23 +102,23 @@ export const output = {
     if (byWord) {
       const words = msg.split(" ");
       for (const word of words) {
-        process.stdout.write(word);
-        process.stdout.write(" ");
+        getPreferredOutputStream().write(word);
+        getPreferredOutputStream().write(" ");
         await new Promise((resolve) => setTimeout(resolve, delayMs));
       }
     } else {
       for (const char of msg) {
-        process.stdout.write(char);
+        getPreferredOutputStream().write(char);
         await new Promise((resolve) => setTimeout(resolve, delayMs));
       }
     }
     // Add a newline at the end of the message
-    process.stdout.write("\n");
+    getPreferredOutputStream().write("\n");
   },
 
   displaySpaceBuffer: (numLines: number = 2) => {
     for (let i = 0; i < numLines; i++) {
-      stdioDisplay.log("");
+      getStdioDisplay().log("");
     }
   },
 
@@ -103,8 +127,8 @@ export const output = {
    * @param length - The length of the separator
    */
   displaySeparator: (length: number = 80) => {
-    stdioDisplay.log(chalk.bold.blueBright.underline(" ".repeat(length)));
-    stdioDisplay.log(chalk.bold.blueBright.underline("".repeat(length)));
+    getStdioDisplay().log(chalk.bold.blueBright.underline(" ".repeat(length)));
+    getStdioDisplay().log(chalk.bold.blueBright.underline("".repeat(length)));
   },
 
   /**
@@ -112,12 +136,12 @@ export const output = {
    * @param msg - The message to log
    */
   displayHeader: (msg: string) => {
-    stdioDisplay.log(chalk.bold.blueBright.underline(msg));
+    getStdioDisplay().log(chalk.bold.blueBright.underline(msg));
   },
 
   displaySubHeader: (msg: string) => {
     const fmtMsg = `\n> ${msg}`;
-    stdioDisplay.log(chalk.bold.blueBright.italic(fmtMsg));
+    getStdioDisplay().log(chalk.bold.blueBright.italic(fmtMsg));
   },
 
   /**
@@ -140,14 +164,14 @@ export const output = {
 
       // Display with padding and notification
       output.displaySpaceBuffer(1);
-      stdioDisplay.log(`${promptSymbol} ${command}`);
+      getStdioDisplay().log(`${promptSymbol} ${command}`);
       output.displaySpaceBuffer(1);
-      stdioDisplay.log(chalk.dim.italic("Command copied to clipboard!"));
+      getStdioDisplay().log(chalk.dim.italic("Command copied to clipboard!"));
       output.displaySpaceBuffer(1);
     } else {
       // Display with padding only
       output.displaySpaceBuffer(1);
-      stdioDisplay.log(`${promptSymbol} ${command}`);
+      getStdioDisplay().log(`${promptSymbol} ${command}`);
       output.displaySpaceBuffer(1);
     }
   },
@@ -159,7 +183,7 @@ export const output = {
   displayCodeBlock: (code: string) => {
     const lines = code.split("\n");
     for (const line of lines) {
-      stdioDisplay.log(`\t${chalk.white.dim(line)}`);
+      getStdioDisplay().log(`\t${chalk.white.dim(line)}`);
     }
   },
 
@@ -168,7 +192,7 @@ export const output = {
    * @param msg - The message to log
    */
   displayInstruction: (msg: string) => {
-    stdioDisplay.log(chalk.blue.dim(msg));
+    getStdioDisplay().log(chalk.blue.dim(msg));
   },
 
   /**
@@ -176,7 +200,7 @@ export const output = {
    * @param msg - The message to log
    */
   displayHelpContext: (msg: string) => {
-    stdioDisplay.log(chalk.gray.dim.italic(msg));
+    getStdioDisplay().log(chalk.gray.dim.italic(msg));
   },
 
   /**
@@ -185,7 +209,7 @@ export const output = {
    * @param link - The link to display
    */
   displayLinkWithPrefix: (prefix: string, link: string) => {
-    stdioDisplay.log(`${chalk.dim(prefix)} ${chalk.blue.bold(link)}`);
+    getStdioDisplay().log(`${chalk.dim(prefix)} ${chalk.blue.bold(link)}`);
   },
 
   /**
@@ -193,7 +217,7 @@ export const output = {
    * @param msg - The message to display
    */
   log: (msg: string) => {
-    stdioDisplay.log(msg);
+    getStdioDisplay().log(msg);
   },
 
   /**
@@ -201,7 +225,7 @@ export const output = {
    * @param msg - The message to display
    */
   debug: (msg: string) => {
-    stdioDisplay.debug(chalk.dim(chalk.yellow(msg)));
+    getStdioDisplay().debug(chalk.dim(chalk.yellow(msg)));
   },
 
   /**
@@ -209,7 +233,7 @@ export const output = {
    * @param msg - The message to display
    */
   info: (msg: string) => {
-    stdioDisplay.info(chalk.blue(msg));
+    getStdioDisplay().info(chalk.blue(msg));
   },
 
   /**
@@ -217,7 +241,7 @@ export const output = {
    * @param msg - The message to display
    */
   success: (msg: string) => {
-    stdioDisplay.log(chalk.green(msg));
+    getStdioDisplay().log(chalk.green(msg));
   },
 
   /**
@@ -225,7 +249,7 @@ export const output = {
    * @param msg - The message to display
    */
   warn: (msg: string) => {
-    stdioDisplay.warn(chalk.magenta(msg));
+    getStdioDisplay().warn(chalk.magenta(msg));
   },
 
   /**
@@ -233,7 +257,7 @@ export const output = {
    * @param msg - The message to display
    */
   error: (msg: string) => {
-    stdioDisplay.error(chalk.red(msg));
+    getStdioDisplay().error(chalk.red(msg));
   },
 } as const;
 

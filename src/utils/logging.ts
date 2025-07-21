@@ -183,6 +183,9 @@ export function getLogger(config?: Partial<LoggingConfig>): Logger {
     selectedLoggingConfig = config;
     return logger;
   }
+  if (!logger) {
+    logger = new Logger();
+  }
   return logger;
 }
 
