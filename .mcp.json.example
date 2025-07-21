@@ -1,9 +1,0 @@
-{
-  "mcpServers": {
-    "{{REPO_NAME}}": {
-      "command": "node",
-      "args": ["./dist/index.js", "--transport", "stdio"],
-      "env": {}
-    }
-  }
-}

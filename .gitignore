@@ -1,3 +1,10 @@
+# AI Stuff
+.mcp.json
+.claude
+.cursor
+worktrees/
+CLAUDE.md
+
 # Dependencies
 node_modules/
 npm-debug.log*
