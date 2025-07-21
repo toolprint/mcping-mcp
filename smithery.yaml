@@ -1,0 +1,15 @@
+# Smithery configuration file: https://smithery.ai/docs/config#smitheryyaml
+runtime: typescript
+startCommand:
+  type: stdio
+  configSchema:
+    # MCPing doesn't require any configuration options
+    type: object
+    properties: {}
+  commandFunction: |-
+    (config) => ({
+      command: 'npx',
+      args: ['-y', '@toolprint/mcping-mcp@latest'],
+      env: {}
+    })
+exampleConfig: {}

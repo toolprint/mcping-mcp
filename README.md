@@ -16,12 +16,13 @@ MCPing is a Model Context Protocol (MCP) server that enables AI assistants to se
 
 Add to your MCP client settings:
 
-```json
+```jsonw
 {
   "mcpServers": {
-    "mcping": {
+    "toolprint-mcping": {
+      "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@toolprint/mcping-mcp"]
+      "args": ["-y", "@toolprint/mcping-mcp@latest"]
     }
   }
 }
