@@ -5,16 +5,10 @@ import { McpServer } from './server/server.js';
 import { StdioTransport } from './server/transports/stdio.js';
 import { HttpTransport } from './server/transports/http.js';
 import { ConfigManager } from './utils/config.js';
-import { getLogger, STDIO_LOGGING_CONFIG, Logger } from './utils/logging.js';
+import { getLogger, STDIO_LOGGING_CONFIG } from './utils/logging.js';
 import { displayBanner } from './utils/output.js';
 import { APP_CONFIG } from './config/app.js';
 import chalk from 'chalk';
-
-// Always display banner before CLI processing for help/version commands
-displayBanner(APP_CONFIG.appName);
-
-// Create a global logger for error handlers
-const globalLogger = getLogger();
 
 const program = new Command();
 
@@ -46,22 +40,22 @@ program
 
 program.action(async (options) => {
   // Initialize logger based on transport type
-  const logger = options.transport === 'stdio' 
+  const logger = options.transport === 'stdio'
     ? getLogger(STDIO_LOGGING_CONFIG)  // only file-based logging for stdio transport
     : getLogger();
-  
+
   try {
+    displayBanner(APP_CONFIG.appName);
 
     // Show server configuration info for HTTP transport only
     // (stdio transport should be silent to avoid MCP protocol interference)
     if (options.transport === 'http') {
-      
       console.log(chalk.blue.bold('Server Configuration:'));
       console.log(chalk.white(`  Transport: ${chalk.yellow(options.transport)}`));
-      
+
       const port = parseInt(options.port, 10);
       console.log(chalk.white(`  Address:   ${chalk.yellow(`http://${options.host}:${port}`)}`));
-      
+
       console.log(chalk.white(`  Version:   ${chalk.yellow(APP_CONFIG.version)}`));
       console.log(); // Extra spacing
     }
@@ -91,7 +85,7 @@ program.action(async (options) => {
     }
 
     logger.info(`Starting MCP server with ${options.transport} transport...`);
-    
+
     // Create MCP server instance
     const mcpServer = new McpServer();
     const server = mcpServer.getServer();
@@ -144,13 +138,11 @@ program.action(async (options) => {
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (reason, promise) => {
-  globalLogger.error('Unhandled Rejection', { promise, reason });
   process.exit(1);
 });
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (error) => {
-  globalLogger.error('Uncaught Exception:', error);
   process.exit(1);
 });
 
