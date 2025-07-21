@@ -162,6 +162,10 @@ npm run dev
 
 MIT © [Toolprint](https://toolprint.ai)
 
+### Usage
+
+When using, forking, or distributing this software, the MIT License requires that you include the original copyright notice ("Copyright © OneGrep, Inc.") and license text in all copies or substantial portions of the software. This attribution requirement ensures proper credit to the original authors while allowing you to freely use, modify, and distribute the code.
+
 ## About Toolprint
 
 Building tools for the AI agent ecosystem. Visit [toolprint.ai](https://toolprint.ai) to explore our suite of MCP servers and developer tools.

@@ -167,6 +167,7 @@ export class Logger {
 
 // Global logger instance
 let logger: Logger;
+let selectedLoggingConfig: Partial<LoggingConfig> | null = null;
 
 // Convenience function to create a child logger
 export function createLogger(context: pino.Bindings, config?: Partial<LoggingConfig>): Logger {
@@ -178,10 +179,13 @@ export function createLogger(context: pino.Bindings, config?: Partial<LoggingCon
 
 export function getLogger(config?: Partial<LoggingConfig>): Logger {
   if (config) {
-    return new Logger(config);
-  }
-  if (!logger) {
-    logger = new Logger();
+    logger = new Logger(config);
+    selectedLoggingConfig = config;
+    return logger;
   }
   return logger;
+}
+
+export function getActiveLoggingConfig(): Partial<LoggingConfig> | null {
+  return selectedLoggingConfig;
 }
