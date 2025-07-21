@@ -4,7 +4,7 @@
 [![npm version](https://img.shields.io/npm/v/@toolprint/mcping-mcp.svg)](https://www.npmjs.com/package/@toolprint/mcping-mcp)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
 
-> I got a ping! 🎉 The spiciest way to make your Mac go ding-dong when your AI has something to say!
+> I got a notification! 🎉 
 
 MCPing is a Model Context Protocol (MCP) server that enables AI assistants to send desktop notifications on macOS. Finally, your AI can tap you on the shoulder instead of just sitting there quietly being brilliant.
 
@@ -31,7 +31,7 @@ Add to your MCP client settings:
 ### Manual Installation
 
 ```bash
-npm install -g @toolprint/mcping-mcp
+npm install -g @toolprint/mcping-mcp@latest
 mcping-mcp
 ```
 
@@ -46,7 +46,7 @@ Add to `claude_desktop_config.json`:
   "mcpServers": {
     "mcping": {
       "command": "npx",
-      "args": ["-y", "@toolprint/mcping-mcp"]
+      "args": ["-y", "@toolprint/mcping-mcp@latest"]
     }
   }
 }
@@ -56,7 +56,7 @@ Add to `claude_desktop_config.json`:
 
 ```bash
 # Run in HTTP mode for testing
-npx @toolprint/mcping-mcp --transport http --port 3000
+npx @toolprint/mcping-mcp@latest --transport http --port 3000
 
 # Test with curl
 curl -X POST http://localhost:3000/mcp \
