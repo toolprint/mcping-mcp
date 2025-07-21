@@ -3,9 +3,7 @@
 import { Command } from 'commander';
 import { getLogger, STDIO_LOGGING_CONFIG } from './utils/logging.js';
 import { APP_CONFIG } from './config/app.js';
-import chalk from 'chalk';
 import { ServerTransport } from './server/transports/types.js';
-import { displayServerRuntimeInfo } from './utils/output.js';
 
 const program = new Command();
 
@@ -42,7 +40,7 @@ program.action(async (options) => {
     : getLogger();
 
   try {
-    const { displayBanner } = await import('./utils/output.js');
+    const { displayBanner, displayServerRuntimeInfo } = await import('./utils/output.js');
     displayBanner(APP_CONFIG.appName);
 
     // Show server configuration info for HTTP transport only
