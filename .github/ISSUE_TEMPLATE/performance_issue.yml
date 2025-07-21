@@ -1,0 +1,91 @@
+name: Performance Issue
+description: Report performance problems or slowdowns
+title: "[Performance] "
+labels: ["performance", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a performance issue! Please provide as much detail as possible.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Performance Issue Description
+      description: Describe the performance problem you're experiencing
+      placeholder: Describe the performance issue...
+    validations:
+      required: true
+
+  - type: textarea
+    id: scenario
+    attributes:
+      label: Scenario
+      description: When does this performance issue occur?
+      placeholder: |
+        - Number of notifications being sent
+        - Frequency of notifications
+        - Specific conditions that trigger the issue
+    validations:
+      required: true
+
+  - type: textarea
+    id: metrics
+    attributes:
+      label: Performance Metrics
+      description: If possible, provide specific performance measurements
+      placeholder: |
+        - Response times
+        - Memory usage
+        - CPU usage
+        - Any benchmarks or profiling data
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: What version of MCPing are you using?
+      placeholder: 0.0.3
+    validations:
+      required: true
+
+  - type: dropdown
+    id: transport
+    attributes:
+      label: Transport Mode
+      description: Which transport mode were you using?
+      options:
+        - STDIO
+        - HTTP
+        - Both
+    validations:
+      required: true
+
+  - type: textarea
+    id: system
+    attributes:
+      label: System Information
+      description: Provide details about your system
+      placeholder: |
+        - macOS version:
+        - Node.js version:
+        - CPU:
+        - RAM:
+        - Other relevant system info:
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Debug Logs
+      description: Any relevant logs or debug output (run with --verbose flag)
+      placeholder: Paste debug logs here...
+      render: shell
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Add any other context about the performance issue
+      placeholder: Any additional information...

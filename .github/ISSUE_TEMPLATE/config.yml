@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 General Questions
+    url: https://github.com/toolprint/mcping-mcp/discussions
+    about: Please ask and answer questions in GitHub Discussions
+  - name: 🔒 Security Issues
+    url: mailto:support@onegrep.dev
+    about: Please report security vulnerabilities via email
+  - name: 📧 Support
+    url: mailto:support@onegrep.dev
+    about: Contact us for commercial support
