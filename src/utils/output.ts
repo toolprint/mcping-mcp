@@ -333,15 +333,12 @@ export function displayMinimalBanner(appName: string = APP_NAME): void {
  * @param port - The port number (for HTTP transport)
  * @param host - The host address (for HTTP transport)
  */
-export function displayServerBanner(
+export function displayServerRuntimeInfo(
   appName: string = APP_NAME,
   transport: string,
   port?: number,
   host?: string
 ): void {
-  displayBanner(appName);
-
-  // Server info without figlet
   output.log(chalk.blue.bold('Server Configuration:'));
   output.log(chalk.white(`  Transport: ${chalk.yellow(transport)}`));
 
