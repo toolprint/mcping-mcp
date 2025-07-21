@@ -1,14 +1,10 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
-import { McpServer } from './server/server.js';
-import { StdioTransport } from './server/transports/stdio.js';
-import { HttpTransport } from './server/transports/http.js';
-import { ConfigManager } from './utils/config.js';
 import { getLogger, STDIO_LOGGING_CONFIG } from './utils/logging.js';
-import { displayBanner } from './utils/output.js';
 import { APP_CONFIG } from './config/app.js';
 import chalk from 'chalk';
+import { ServerTransport } from './server/transports/types.js';
 
 const program = new Command();
 
@@ -45,6 +41,7 @@ program.action(async (options) => {
     : getLogger();
 
   try {
+    const { displayBanner } = await import('./utils/output.js');
     displayBanner(APP_CONFIG.appName);
 
     // Show server configuration info for HTTP transport only
@@ -73,6 +70,8 @@ program.action(async (options) => {
       process.exit(1);
     }
 
+    const { ConfigManager } = await import('./utils/config.js');
+
     // Set up configuration
     const config = new ConfigManager({
       transport: options.transport,
@@ -86,11 +85,15 @@ program.action(async (options) => {
 
     logger.info(`Starting MCP server with ${options.transport} transport...`);
 
+    const { McpServer } = await import('./server/server.js');
+    const { StdioTransport } = await import('./server/transports/stdio.js');
+    const { HttpTransport } = await import('./server/transports/http.js');
+
     // Create MCP server instance
     const mcpServer = new McpServer();
     const server = mcpServer.getServer();
 
-    let transport: StdioTransport | HttpTransport;
+    let transport: ServerTransport;
 
     // Start appropriate transport
     if (config.getTransport() === 'stdio') {

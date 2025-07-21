@@ -4,10 +4,11 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { randomUUID } from 'node:crypto';
 import { getLogger } from '../../utils/logging.js';
 import { APP_CONFIG } from '../../config/app.js';
+import { ServerTransport } from './types.js';
 
 const logger = getLogger()
 
-export class HttpTransport {
+export class HttpTransport implements ServerTransport {
   private app: express.Application;
   private server: any;
   private mcpServer: Server;

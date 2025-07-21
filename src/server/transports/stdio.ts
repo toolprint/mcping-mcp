@@ -1,8 +1,9 @@
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { getLogger, STDIO_LOGGING_CONFIG } from '../../utils/logging.js';
+import { ServerTransport } from './types.js';
 
-export class StdioTransport {
+export class StdioTransport implements ServerTransport {
   private transport: StdioServerTransport;
   private logger = getLogger(STDIO_LOGGING_CONFIG);
 
